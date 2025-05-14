@@ -6,7 +6,9 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Github, Mail, AlertCircle } from "lucide-react";
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -162,7 +164,7 @@ export default function LoginPage() {
 
           <div className="text-center text-sm">
             <p>
-              Don&apos;t have an account?{" "}
+              Don't have an account?{" "}
               <Link
                 href="/register"
                 className="font-medium text-primary hover:underline"
@@ -174,5 +176,13 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageContent />
+    </Suspense>
   );
 }

@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // DELETE /api/projects/[projectId]/invitations/[invitationId] - Cancel a pending invitation
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { projectId: string; invitationId: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -16,7 +13,8 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { projectId, invitationId } = await params;
+    const projectId = context.params.projectId;
+    const invitationId = context.params.invitationId;
 
     // Check if user is the project owner
     const project = await prisma.project.findFirst({

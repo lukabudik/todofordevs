@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // Helper function to check if user has access to the project
@@ -37,10 +37,7 @@ async function isProjectOwner(projectId: string, userId: string) {
 }
 
 // GET /api/projects/[projectId] - Get a single project by ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -49,7 +46,7 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const { projectId } = await params;
+    const projectId = context.params.projectId;
 
     // Check if user has access to the project
     const hasAccess = await hasProjectAccess(projectId, userId);
@@ -106,10 +103,7 @@ export async function GET(
 }
 
 // PUT /api/projects/[projectId] - Update a project
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -118,7 +112,7 @@ export async function PUT(
     }
 
     const userId = session.user.id;
-    const { projectId } = await params;
+    const projectId = context.params.projectId;
 
     // Check if user is the project owner
     const isOwner = await isProjectOwner(projectId, userId);
@@ -169,10 +163,7 @@ export async function PUT(
 }
 
 // DELETE /api/projects/[projectId] - Delete a project
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -181,7 +172,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { projectId } = await params;
+    const projectId = context.params.projectId;
 
     // Check if user is the project owner
     const isOwner = await isProjectOwner(projectId, userId);

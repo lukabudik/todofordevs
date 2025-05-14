@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // Helper function to check if user has access to the task
@@ -63,10 +63,7 @@ interface TaskUpdateData {
 }
 
 // GET /api/tasks/[taskId] - Get a single task by ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { taskId: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -75,7 +72,7 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const { taskId } = await params;
+    const taskId = context.params.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);
@@ -121,10 +118,7 @@ export async function GET(
 }
 
 // PUT /api/tasks/[taskId] - Update a task
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { taskId: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -133,7 +127,7 @@ export async function PUT(
     }
 
     const userId = session.user.id;
-    const { taskId } = await params;
+    const taskId = context.params.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);
@@ -252,10 +246,7 @@ export async function PUT(
 }
 
 // DELETE /api/tasks/[taskId] - Delete a task
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { taskId: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -264,7 +255,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const { taskId } = await params;
+    const taskId = context.params.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);

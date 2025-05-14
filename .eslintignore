@@ -1,0 +1,22 @@
+# Prisma generated files
+src/generated/**/*
+prisma/generated/**/*
+
+# TypeScript declaration files
+**/*.d.ts
+
+# Build output
+.next/**/*
+out/**/*
+dist/**/*
+build/**/*
+
+# Node modules
+node_modules/**/*
+
+# Environment files
+.env
+.env.*
+
+# Other generated files
+*.generated.*

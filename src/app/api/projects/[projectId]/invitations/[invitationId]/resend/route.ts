@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendPendingInvitationEmail } from "@/lib/email";
 import crypto from "crypto";
@@ -18,10 +18,7 @@ function calculateExpirationDate(days: number = 7): Date {
 }
 
 // POST /api/projects/[projectId]/invitations/[invitationId]/resend - Resend a pending invitation
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { projectId: string; invitationId: string } }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -30,7 +27,8 @@ export async function POST(
     }
 
     const userId = session.user.id;
-    const { projectId, invitationId } = await params;
+    const projectId = context.params.projectId;
+    const invitationId = context.params.invitationId;
 
     // Check if user is the project owner
     const project = await prisma.project.findFirst({
