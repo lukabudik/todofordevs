@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TaskOptions } from "@/components/tasks/task-options";
+import { TaskActions } from "@/components/tasks/TaskActions";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { formatDistanceToNow } from "date-fns";
 
@@ -29,9 +29,17 @@ interface KanbanTaskProps {
   task: Task;
   projectId: string;
   onTaskClick: (taskId: string) => void;
+  onEditClick: (taskId: string) => void;
+  onTaskUpdate?: (taskId: string, data: Partial<Task>) => Promise<void>;
 }
 
-export function KanbanTask({ task, projectId, onTaskClick }: KanbanTaskProps) {
+export function KanbanTask({
+  task,
+  projectId,
+  onTaskClick,
+  onEditClick,
+  onTaskUpdate,
+}: KanbanTaskProps) {
   const {
     attributes,
     listeners,
@@ -115,7 +123,11 @@ export function KanbanTask({ task, projectId, onTaskClick }: KanbanTaskProps) {
             <span className="text-xs font-medium">{task.priority}</span>
           </div>
           <div className="task-options">
-            <TaskOptions task={{ ...task, projectId }} />
+            <TaskActions
+              task={{ ...task, projectId }}
+              onTaskUpdate={onTaskUpdate}
+              onEditClick={onEditClick}
+            />
           </div>
         </div>
       </div>

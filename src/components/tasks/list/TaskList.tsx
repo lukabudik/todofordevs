@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { TaskOptions } from "@/components/tasks/task-options";
+import { TaskActions } from "@/components/tasks/TaskActions";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Settings, Edit, Check, X } from "lucide-react";
+import { Settings } from "lucide-react";
 import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 import {
   DropdownMenu,
@@ -53,10 +52,7 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
 
   // State for task detail panel
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-
-  // State for inline editing
-  const [editingTask, setEditingTask] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<Partial<Task>>({});
+  const [openInEditMode, setOpenInEditMode] = useState(false);
 
   // Priority colors
   const priorityColors = {
@@ -90,51 +86,11 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
     Done: "✅",
   };
 
-  // Status options for inline editing
-  const statusOptions = ["To Do", "In Progress", "Blocked", "Done"];
-
-  // Priority options for inline editing
-  const priorityOptions = ["Low", "Medium", "High", "Urgent"];
-
   // Handle column visibility toggle
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns((prev) => ({
       ...prev,
       [column]: !prev[column],
-    }));
-  };
-
-  // Start editing a task
-  const startEditing = (task: Task) => {
-    setEditingTask(task.id);
-    setEditValues({
-      title: task.title,
-      status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate,
-    });
-  };
-
-  // Cancel editing
-  const cancelEditing = () => {
-    setEditingTask(null);
-    setEditValues({});
-  };
-
-  // Save edited task
-  const saveEditing = async (taskId: string) => {
-    if (Object.keys(editValues).length > 0) {
-      await onTaskUpdate(taskId, editValues);
-    }
-    setEditingTask(null);
-    setEditValues({});
-  };
-
-  // Handle input change during editing
-  const handleEditChange = (field: keyof Task, value: any) => {
-    setEditValues((prev) => ({
-      ...prev,
-      [field]: value,
     }));
   };
 
@@ -158,12 +114,6 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
       .join("")
       .toUpperCase()
       .substring(0, 2);
-  };
-
-  // Truncate text with ellipsis
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return `${text.substring(0, maxLength)}...`;
   };
 
   return (
@@ -246,11 +196,7 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
           <div
             key={task.id}
             className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-accent/50 cursor-pointer"
-            onClick={() => {
-              if (editingTask !== task.id) {
-                setSelectedTaskId(task.id);
-              }
-            }}
+            onClick={() => setSelectedTaskId(task.id)}
           >
             {/* ID column */}
             {visibleColumns.id && (
@@ -267,113 +213,54 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
                 visibleColumns.id ? "col-span-3" : "col-span-4"
               } flex items-center`}
             >
-              {editingTask === task.id ? (
-                <input
-                  type="text"
-                  value={editValues.title || ""}
-                  onChange={(e) => handleEditChange("title", e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
-                  autoFocus
-                />
-              ) : (
-                <span className="font-medium">{task.title}</span>
-              )}
+              <span className="font-medium">{task.title}</span>
             </div>
 
             {/* Status column */}
             {visibleColumns.status && (
               <div className="col-span-1 flex items-center">
-                {editingTask === task.id ? (
-                  <select
-                    value={editValues.status || task.status}
-                    onChange={(e) => handleEditChange("status", e.target.value)}
-                    className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-transparent ${
-                      statusColors[task.status as keyof typeof statusColors] ||
-                      "border-gray-500"
+                <div
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-transparent ${
+                    statusColors[task.status as keyof typeof statusColors] ||
+                    "border-gray-500"
+                  }`}
+                >
+                  <span
+                    className={`mr-1 h-1.5 w-1.5 rounded-full ${
+                      statusDotColors[
+                        task.status as keyof typeof statusDotColors
+                      ] || "bg-gray-500"
                     }`}
-                  >
-                    <span
-                      className={`mr-1 h-1.5 w-1.5 rounded-full ${
-                        statusDotColors[
-                          task.status as keyof typeof statusDotColors
-                        ] || "bg-gray-500"
-                      }`}
-                    ></span>
-                    <span className="text-foreground">
-                      {statusIcons[task.status as keyof typeof statusIcons] ||
-                        "📋"}{" "}
-                      {task.status}
-                    </span>
-                  </div>
-                )}
+                  ></span>
+                  <span className="text-foreground">
+                    {statusIcons[task.status as keyof typeof statusIcons] ||
+                      "📋"}{" "}
+                    {task.status}
+                  </span>
+                </div>
               </div>
             )}
 
             {/* Priority column */}
             {visibleColumns.priority && (
               <div className="col-span-1 flex items-center">
-                {editingTask === task.id ? (
-                  <select
-                    value={editValues.priority || task.priority}
-                    onChange={(e) =>
-                      handleEditChange("priority", e.target.value)
-                    }
-                    className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  >
-                    {priorityOptions.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="flex items-center gap-1">
-                    <div
-                      className={`h-2 w-2 rounded-full ${
-                        priorityColors[
-                          task.priority as keyof typeof priorityColors
-                        ]?.split(" ")[0] || "bg-gray-500"
-                      }`}
-                    />
-                    <span className="text-xs font-medium">{task.priority}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-1">
+                  <div
+                    className={`h-2 w-2 rounded-full ${
+                      priorityColors[
+                        task.priority as keyof typeof priorityColors
+                      ]?.split(" ")[0] || "bg-gray-500"
+                    }`}
+                  />
+                  <span className="text-xs font-medium">{task.priority}</span>
+                </div>
               </div>
             )}
 
             {/* Due Date column */}
             {visibleColumns.dueDate && (
               <div className="col-span-1 flex items-center">
-                {editingTask === task.id ? (
-                  <input
-                    type="date"
-                    value={
-                      editValues.dueDate
-                        ? new Date(editValues.dueDate)
-                            .toISOString()
-                            .split("T")[0]
-                        : task.dueDate
-                          ? new Date(task.dueDate).toISOString().split("T")[0]
-                          : ""
-                    }
-                    onChange={(e) =>
-                      handleEditChange("dueDate", e.target.value)
-                    }
-                    className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  />
-                ) : (
-                  <span className="text-xs">{formatDate(task.dueDate)}</span>
-                )}
+                <span className="text-xs">{formatDate(task.dueDate)}</span>
               </div>
             )}
 
@@ -419,48 +306,22 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
             )}
 
             {/* Actions column */}
-            <div className="col-span-1 flex items-center justify-end gap-1">
-              {editingTask === task.id ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => saveEditing(task.id)}
-                    title="Save changes"
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={cancelEditing}
-                    title="Cancel editing"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 opacity-80 hover:opacity-100"
-                    onClick={() => startEditing(task)}
-                    title="Quick edit task"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <TaskOptions
-                    task={{
-                      ...task,
-                      projectId,
-                      assigneeId: task.assigneeId,
-                    }}
-                  />
-                </>
-              )}
+            <div
+              className="col-span-1 flex items-center justify-end gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <TaskActions
+                task={{
+                  ...task,
+                  projectId,
+                  assigneeId: task.assigneeId,
+                }}
+                onTaskUpdate={onTaskUpdate}
+                onEditClick={(taskId) => {
+                  setSelectedTaskId(taskId);
+                  setOpenInEditMode(true);
+                }}
+              />
             </div>
           </div>
         ))}
@@ -470,11 +331,15 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
       <TaskDetailPanel
         taskId={selectedTaskId}
         projectId={projectId}
-        onClose={() => setSelectedTaskId(null)}
+        onClose={() => {
+          setSelectedTaskId(null);
+          setOpenInEditMode(false);
+        }}
         onTaskUpdate={() => {
           // Refresh the task list
           window.location.reload();
         }}
+        initialEditMode={openInEditMode}
       />
     </div>
   );

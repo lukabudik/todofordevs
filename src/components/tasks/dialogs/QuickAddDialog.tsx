@@ -9,10 +9,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { TaskForm, TaskFormValues } from "@/components/tasks/TaskForm";
 
 interface Project {
   id: string;
@@ -35,9 +33,6 @@ export function QuickAddDialog({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("To Do");
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null
@@ -78,46 +73,21 @@ export function QuickAddDialog({
     }
   }, [isOpen, projectIdFromPath]);
 
-  // Reset form when dialog closes
+  // Reset error when dialog closes
   useEffect(() => {
     if (!isOpen) {
-      setTitle("");
-      setDescription("");
-      setStatus("To Do");
       setError("");
     }
   }, [isOpen]);
 
-  // Focus the title input when the dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      // Small delay to ensure the dialog is fully rendered
-      const timer = setTimeout(() => {
-        const titleInput = document.getElementById("quick-add-title");
-        if (titleInput) {
-          titleInput.focus();
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    if (!title.trim()) {
-      setError("Task title is required");
-      setIsLoading(false);
-      return;
-    }
-
+  const handleSubmit = async (values: TaskFormValues) => {
     if (!selectedProjectId) {
       setError("Please select a project");
-      setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
+    setError("");
 
     try {
       const response = await fetch(`/api/projects/${selectedProjectId}/tasks`, {
@@ -125,12 +95,7 @@ export function QuickAddDialog({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title,
-          description,
-          status,
-          priority: "Medium", // Default priority
-        }),
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) {
@@ -138,7 +103,7 @@ export function QuickAddDialog({
         throw new Error(data.message || "Failed to create task");
       }
 
-      // Close dialog and reset form
+      // Close dialog
       onOpenChange(false);
 
       // Refresh the page if we're on the project page
@@ -156,6 +121,10 @@ export function QuickAddDialog({
     }
   };
 
+  const handleCancel = () => {
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -165,87 +134,44 @@ export function QuickAddDialog({
             Quickly add a new task to your project.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          {error && (
-            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              {error}
-            </div>
+
+        {/* Project selector */}
+        <div className="mb-4">
+          <Label htmlFor="quick-add-project">Project</Label>
+          <Select
+            value={selectedProjectId || ""}
+            onValueChange={setSelectedProjectId}
+          >
+            <SelectTrigger id="quick-add-project">
+              <SelectValue placeholder="Select a project" />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!selectedProjectId && (
+            <p className="mt-1 text-xs text-destructive">
+              Please select a project
+            </p>
           )}
+        </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="quick-add-title">Task Title</Label>
-            <Input
-              id="quick-add-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title"
-              className="col-span-3"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="quick-add-description">
-              Description (Optional)
-            </Label>
-            <Textarea
-              id="quick-add-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of the task"
-              className="col-span-3 h-20"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="quick-add-project">Project</Label>
-              <Select
-                value={selectedProjectId || ""}
-                onValueChange={setSelectedProjectId}
-              >
-                <SelectTrigger id="quick-add-project">
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="quick-add-status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger id="quick-add-status">
-                  <SelectValue placeholder="Select a status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="To Do">To Do</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Blocked">Blocked</SelectItem>
-                  <SelectItem value="Done">Done</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Task"}
-            </Button>
-          </div>
-        </form>
+        {/* Task form */}
+        {selectedProjectId && (
+          <TaskForm
+            projectId={selectedProjectId}
+            isLoading={isLoading}
+            error={error}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            mode="create"
+            isSimplified={true}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

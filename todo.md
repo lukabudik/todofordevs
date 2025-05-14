@@ -1,218 +1,257 @@
-# TodoForDevs Code Cleanup Checklist
+# TodoForDevs UX Improvement Checklist
 
-## Project Structure Reorganization
+This document outlines the comprehensive plan for improving the UX of the TodoForDevs application, with a focus on making task management more intuitive, consistent, and developer-friendly.
 
-- [x] Create new folder structure for tasks components
-  - [x] Create `src/components/tasks/list` folder
-  - [x] Create `src/components/tasks/filters` folder
-  - [x] Create `src/components/tasks/dialogs` folder
-  - [x] Move and rename components to their appropriate folders
+## 1. Task Management Flow Redesign
 
-## Components
+### 1.1 Unified Task Interface
 
-### Tasks Components
+- [x] Create a unified `TaskForm` component to replace multiple dialog implementations
+  - [x] Refactor `TaskFormDialog.tsx` to use the new unified component
+  - [x] Refactor `QuickAddDialog.tsx` to use the new unified component
+  - [ ] Ensure responsive design (modal on desktop, full-screen on mobile)
+- [x] Standardize form fields and validation across all task creation/editing interfaces
+  - [x] Consistent field order: title, description, status, priority, due date, assignee
+  - [x] Unified validation logic and error handling
+- [x] Implement progressive disclosure pattern for task creation
+  - [x] Quick add with just title and project
+  - [x] "Add details" option to expand to full form
 
-- [x] `src/components/tasks/list/TaskList.tsx` - Renamed from enhanced-task-list.tsx, cleaned up
-- [x] `src/components/tasks/list/index.ts` - Created to export TaskList and maintain backward compatibility
-- [x] `src/components/tasks/filters/TaskFilters.tsx` - Renamed from enhanced-filters.tsx, cleaned up
-- [x] `src/components/tasks/filters/index.ts` - Created to export TaskFilters and maintain backward compatibility
-- [x] `src/components/tasks/dialogs/QuickAddDialog.tsx` - Renamed from quick-add-task-dialog.tsx, cleaned up
-- [x] `src/components/tasks/dialogs/TaskFormDialog.tsx` - Renamed from task-form-dialog.tsx, cleaned up
-- [x] `src/components/tasks/dialogs/TaskDetailDialog.tsx` - Renamed from task-detail-dialog.tsx, cleaned up
-- [x] `src/components/tasks/dialogs/TaskDetailPanel.tsx` - Renamed from task-detail-panel.tsx, cleaned up
-- [x] `src/components/tasks/dialogs/index.ts` - Created to export all dialog components
-- [x] `src/components/tasks/task-options.tsx` - Updated import for TaskFormDialog
-- [ ] `src/components/tasks/enhanced-list/enhanced-task-list.tsx` - To be removed (replaced by TaskList)
-- [ ] `src/components/tasks/enhanced-list/index.ts` - To be removed (replaced by list/index.ts)
-- [ ] `src/components/tasks/filters/enhanced-filters.tsx` - To be removed (replaced by TaskFilters)
-- [ ] `src/components/tasks/quick-add-task-dialog.tsx` - To be removed (replaced by QuickAddDialog)
-- [ ] `src/components/tasks/task-form-dialog.tsx` - To be removed (replaced by TaskFormDialog)
-- [ ] `src/components/tasks/task-detail-dialog.tsx` - To be removed (replaced by TaskDetailDialog)
-- [ ] `src/components/tasks/task-detail-panel.tsx` - To be removed (replaced by TaskDetailPanel)
+### 1.2 Contextual Task Actions
 
-### Kanban Components
+- [x] Create a consistent `TaskActions` component for all task-related actions
+  - [x] Replace current `TaskOptions` component
+  - [x] Ensure same actions appear in the same location across all views
+- [x] Standardize edit, delete, and status change actions
+  - [x] Consistent icon and label usage
+  - [x] Uniform confirmation dialogs
+- [x] Implement a "quick actions" toolbar for common operations
+  - [x] Status change
+  - [x] Priority change
+  - [x] Assignee change
+  - [x] Due date modification
 
-- [x] `src/components/kanban/kanban-board.tsx` - Updated import for TaskDetailPanel
-- [x] `src/components/kanban/kanban-column.tsx` - Reviewed, no changes needed
-- [x] `src/components/kanban/kanban-task.tsx` - Reviewed, no changes needed
-- [x] `src/components/kanban/view-switcher.tsx` - Reviewed, no changes needed
+### 1.3 Task Detail View Consolidation
 
-### Markdown Components
+- [x] Consolidate `TaskDetailDialog` and `TaskDetailPanel` into a single component
+  - [x] Create a unified `TaskDetail` component
+  - [x] Use a Notion-like side panel design (removed dialog mode)
+- [x] Remove inline editing from list view
+  - [x] Replace with consistent edit action that opens the unified form
+- [x] Implement a clear visual hierarchy for task information
+  - [x] Primary: title, status, assignee
+  - [x] Secondary: description, due date, priority
+  - [x] Tertiary: creation date, update date, etc.
+- [x] Simplify the editing experience in the TaskDetail panel
+  - [x] Open panel directly in edit mode when "Edit" is clicked from task actions
+  - [x] Replace separate edit buttons with a single edit/view toggle
+  - [x] Make all fields editable in a single edit mode
 
-- [x] `src/components/markdown/markdown-renderer.tsx` - Reviewed, no changes needed
-- [x] `src/components/markdown/markdown-editor.tsx` - Reviewed, no changes needed
-- [x] `src/components/markdown/enhanced-markdown-editor.tsx` - Reviewed, no changes needed
-- [x] `src/components/markdown/index.ts` - Reviewed, no changes needed
+## 2. Navigation & Information Architecture
 
-### Project Components
+### 2.1 Sidebar Navigation
 
-- [x] `src/components/projects/new-project-dialog.tsx` - Reviewed, no changes needed
-- [x] `src/components/projects/project-collaborators.tsx` - Reviewed, no changes needed
-- [x] `src/components/projects/project-options.tsx` - Reviewed, no changes needed
-- [x] `src/components/projects/project-switcher.tsx` - Reviewed, no changes needed
+- [ ] Move "My Tasks" from top bar to main sidebar navigation
+  - [ ] Update `navbar.tsx` to remove My Tasks link
+  - [ ] Update `sidebar.tsx` to include My Tasks link
+- [ ] Create a clear navigation hierarchy
+  - [ ] Dashboard (overview)
+  - [ ] Projects (list and management)
+  - [ ] My Tasks (personal task list)
+  - [ ] Settings (user and workspace)
+- [ ] Implement a collapsible sidebar similar to VS Code/GitHub
+  - [ ] Add collapse/expand functionality
+  - [ ] Show icons only when collapsed
+  - [ ] Add tooltips for collapsed state
 
-### Layout Components
+### 2.2 Contextual Top Bar
 
-- [x] `src/components/layout/breadcrumbs.tsx` - Reviewed, no changes needed
-- [x] `src/components/layout/main-layout.tsx` - Reviewed, no changes needed
-- [x] `src/components/layout/navbar.tsx` - Updated imports to use new component paths
-- [x] `src/components/layout/sidebar.tsx` - Reviewed, no changes needed
+- [ ] Redesign top bar to focus on context-specific actions
+  - [ ] Update `navbar.tsx` to be context-aware
+- [ ] Implement breadcrumbs for current location
+  - [ ] Create `Breadcrumbs` component
+  - [ ] Show path: Project > Task
+- [ ] Add quick actions relevant to the current context
+  - [ ] Project-specific actions when in a project
+  - [ ] Task-specific actions when viewing a task
 
-### Command Components
+### 2.3 Command Palette Enhancement
 
-- [x] `src/components/command/command-palette.tsx` - Reviewed, no changes needed
+- [ ] Enhance command palette for quick access to all tasks
+  - [ ] Update `command-palette.tsx` with new functionality
+- [ ] Add keyboard shortcuts for common actions
+  - [ ] Task creation: Ctrl/Cmd + N
+  - [ ] Task search: Ctrl/Cmd + F
+  - [ ] Navigate to My Tasks: Ctrl/Cmd + T
+- [ ] Implement "go to task" feature
+  - [ ] Fuzzy search across all tasks
+  - [ ] Recent tasks section
+  - [ ] Favorite/pinned tasks
 
-### Email Components
+## 3. Kanban Board Improvements
 
-- [x] `src/components/email/email-layout.tsx` - Reviewed, no changes needed
-- [x] `src/components/email/verification-email.tsx` - Reviewed, no changes needed
-- [x] `src/components/email/password-reset-email.tsx` - Reviewed, no changes needed
-- [x] `src/components/email/project-invitation-email.tsx` - Reviewed, no changes needed
+### 3.1 Enhanced Drag and Drop
 
-### Provider Components
+- [ ] Improve drag and drop with clearer visual cues
+  - [ ] Update `kanban-board.tsx` and `kanban-task.tsx`
+  - [ ] Add drop zone highlighting
+  - [ ] Implement smoother animations during drag
+- [ ] Add drag handles to make draggable items more obvious
+  - [ ] Visual indicator for draggable items
+  - [ ] Cursor change on hover
+- [ ] Implement better placeholder visualization during dragging
+  - [ ] Show ghost card in original position
+  - [ ] Preview card in potential drop position
 
-- [x] `src/components/providers/providers.tsx` - Reviewed, no changes needed
-- [x] `src/components/providers/session-provider.tsx` - Reviewed, no changes needed
-- [x] `src/components/providers/theme-provider.tsx` - Reviewed, no changes needed
+### 3.2 Column Management
 
-### UI Components
+- [ ] Allow customizing columns
+  - [ ] Add/remove columns
+  - [ ] Reorder columns
+  - [ ] Rename columns
+- [ ] Implement column collapsing for better space management
+  - [ ] Add collapse/expand toggle
+  - [ ] Show task count when collapsed
+- [ ] Add column statistics
+  - [ ] Task count
+  - [ ] Completion rate
+  - [ ] Average time in column
 
-- [x] `src/components/ui/badge.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/button.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/command.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/dialog.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/dropdown-menu.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/checkbox.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/input.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/label.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/popover.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/select.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/textarea.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/theme-toggle.tsx` - Reviewed, no changes needed
-- [x] `src/components/ui/tooltip.tsx` - Reviewed, no changes needed
+### 3.3 Task Card Improvements
 
-## Pages
+- [ ] Redesign task cards for better information display
+  - [ ] Update `kanban-task.tsx`
+  - [ ] Focus on essential information
+  - [ ] Consistent layout across all cards
+- [ ] Add visual progress indicators
+  - [ ] Progress bar for tasks with subtasks
+  - [ ] Time-based indicators for due dates
+- [ ] Implement better status visualization
+  - [ ] Color-coded borders or accents
+  - [ ] Status icons (non-emoji)
+  - [ ] Visual differentiation between statuses
 
-### Auth Pages
+## 4. Visual Design Consistency
 
-- [x] `src/app/(auth)/layout.tsx` - Reviewed, no changes needed
-- [x] `src/app/(auth)/login/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/(auth)/register/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/(auth)/forgot-password/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/(auth)/reset-password/page.tsx` - Reviewed, no changes needed
+### 4.1 Design System Refinement
 
-### Dashboard Pages
+- [ ] Replace emojis with consistent iconography
+  - [ ] Update all instances of emoji usage with Lucide icons
+  - [ ] Status icons: To Do, In Progress, Blocked, Done
+  - [ ] Priority icons: Low, Medium, High, Urgent
+- [ ] Implement a cleaner, more minimalistic design
+  - [ ] Reduce visual noise
+  - [ ] Increase whitespace
+  - [ ] Simplify UI elements
+- [ ] Create a cohesive color system
+  - [ ] Define semantic colors for status, priority
+  - [ ] Ensure accessibility (contrast ratios)
+  - [ ] Consistent application across the app
 
-- [x] `src/app/(dashboard)/layout.tsx` - Reviewed, no changes needed
-- [x] `src/app/(dashboard)/my-tasks/page.tsx` - Updated imports to use new component paths
-- [x] `src/app/(dashboard)/profile/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/(dashboard)/projects/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/(dashboard)/projects/[projectId]/page.tsx` - Updated imports to use new component paths
+### 4.2 Task Card Redesign
 
-### Other Pages
+- [ ] Simplify task cards
+  - [ ] Focus on title, status, assignee
+  - [ ] Show description preview only when relevant
+- [ ] Improve visual hierarchy
+  - [ ] Clear typographic scale
+  - [ ] Consistent spacing
+  - [ ] Visual weight for important elements
+- [ ] Use subtle visual cues instead of explicit labels
+  - [ ] Color accents for status/priority
+  - [ ] Position and size to indicate importance
+  - [ ] Icons instead of text where appropriate
 
-- [x] `src/app/layout.tsx` - Reviewed, no changes needed
-- [x] `src/app/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/logout/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/resend-verification/page.tsx` - Reviewed, no changes needed
-- [x] `src/app/verify-email/page.tsx` - Reviewed, no changes needed
+### 4.3 Status and Priority Visualization
 
-## API Routes
+- [ ] Replace emoji status indicators
+  - [ ] Create a color-coded system
+  - [ ] Use consistent icons
+- [ ] Implement consistent priority visualization
+  - [ ] Color scale for priorities
+  - [ ] Icon set for priorities
+- [ ] Use progress bars and visual elements
+  - [ ] Task completion status
+  - [ ] Due date proximity
+  - [ ] Subtask progress
 
-### Auth API Routes
+## 5. Developer-Focused Enhancements
 
-- [x] `src/app/api/auth/[...nextauth]/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/check-verification/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/forgot-password/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/register/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/resend-verification/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/reset-password/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/reset-password/verify/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/auth/verify-email/route.ts` - Reviewed, no changes needed
+### 5.1 IDE-Inspired Features
 
-### Invitations API Routes
+- [ ] Add keyboard shortcuts for all common actions
+  - [ ] Document all shortcuts
+  - [ ] Add shortcut hints to UI
+- [ ] Implement code block support
+  - [ ] Syntax highlighting in task descriptions
+  - [ ] Code-specific formatting options
+- [ ] Add tagging system
+  - [ ] @ mentions for team members
+  - [ ] # references for tasks/projects
+  - [ ] ! for priorities
 
-- [x] `src/app/api/invitations/verify/route.ts` - Reviewed, no changes needed
+### 5.2 Integration Capabilities
 
-### Projects API Routes
+- [ ] Improve GitHub/GitLab integration
+  - [ ] Reference issues/PRs
+  - [ ] Link commits to tasks
+- [ ] Add support for linking to external tools
+  - [ ] Figma
+  - [ ] Jira
+  - [ ] Documentation sites
+- [ ] Implement a plugin system
+  - [ ] API for extensions
+  - [ ] Custom views
+  - [ ] Integration hooks
 
-- [x] `src/app/api/projects/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/collaborators/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/collaborators/[userId]/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/invitations/[invitationId]/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/invitations/[invitationId]/resend/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/projects/[projectId]/tasks/route.ts` - Reviewed, no changes needed
+### 5.3 Developer Workflow Optimization
 
-### Tasks API Routes
+- [ ] Add templates for common development tasks
+  - [ ] Bug fix template
+  - [ ] Feature implementation template
+  - [ ] Code review template
+- [ ] Implement task dependencies and blockers
+  - [ ] Visual representation of dependencies
+  - [ ] Blocker notification system
+- [ ] Create views optimized for development workflows
+  - [ ] Sprint planning view
+  - [ ] Retrospective view
+  - [ ] Code review dashboard
 
-- [x] `src/app/api/tasks/[taskId]/route.ts` - Reviewed, no changes needed
+## Implementation Phases
 
-### User API Routes
+### Phase 1: Consolidation & Consistency
 
-- [x] `src/app/api/user/profile/route.ts` - Reviewed, no changes needed
-- [x] `src/app/api/user/tasks/route.ts` - Reviewed, no changes needed
+- [x] Unify task interfaces
+  - [x] Create unified TaskForm component
+  - [x] Create consistent TaskActions component
+  - [x] Consolidate task detail views
+- [ ] Move "My Tasks" to sidebar
+  - [ ] Update navigation structure
+  - [ ] Implement breadcrumbs
+- [ ] Remove emojis and standardize iconography
+  - [ ] Replace all emoji usage
+  - [ ] Implement consistent icon system
 
-## Library Files
+### Phase 2: Interaction Improvements
 
-- [x] `src/lib/email.ts` - Reviewed, no changes needed
-- [x] `src/lib/prisma.ts` - Reviewed, no changes needed
-- [x] `src/lib/utils.ts` - Reviewed, no changes needed
+- [ ] Enhance kanban board
+  - [ ] Improve drag and drop
+  - [ ] Implement column management
+  - [ ] Redesign task cards
+- [ ] Add keyboard shortcuts
+  - [ ] Define shortcut system
+  - [ ] Implement in command palette
+  - [ ] Add visual indicators
 
-## Configuration Files
+### Phase 3: Developer-Specific Features
 
-- [x] `.env` - Reviewed, no changes needed
-- [x] `.env.example` - Reviewed, no changes needed
-- [x] `.gitignore` - Reviewed, no changes needed
-- [x] `.prettierrc.json` - Reviewed, no changes needed
-- [x] `components.json` - Reviewed, no changes needed
-- [x] `eslint.config.mjs` - Reviewed, no changes needed
-- [x] `next.config.ts` - Reviewed, no changes needed
-- [x] `package.json` - Reviewed, no changes needed
-- [x] `postcss.config.mjs` - Reviewed, no changes needed
-- [x] `tailwind.config.ts` - Reviewed, no changes needed
-- [x] `tsconfig.json` - Reviewed, no changes needed
-
-## Prisma Files
-
-- [x] `prisma/schema.prisma` - Reviewed, no changes needed
-- [x] `prisma/migrations/migration_lock.toml` - Reviewed, no changes needed
-- [x] `prisma/migrations/20250514000000_initial_setup/migration.sql` - Reviewed, no changes needed
-- [x] `prisma/migrations/20250514133820_add_email_logs/migration.sql` - Reviewed, no changes needed
-- [x] `prisma/migrations/20250514144624_add_password_reset_token/migration.sql` - Reviewed, no changes needed
-- [x] `prisma/migrations/20250514151701_add_pending_invitations/migration.sql` - Reviewed, no changes needed
-
-## Other Files
-
-- [x] `src/middleware.ts` - Reviewed, no changes needed
-- [x] `src/types/next-auth.d.ts` - Reviewed, no changes needed
-- [x] `README.md` - Reviewed, no changes needed
-
-## Notes on Changes Made
-
-### Task Components Reorganization
-
-1. Created a more organized folder structure for task components:
-
-   - `list` folder for list-related components
-   - `filters` folder for filter-related components
-   - `dialogs` folder for dialog-related components
-
-2. Renamed components to follow a more consistent naming convention:
-
-   - `EnhancedTaskList` → `TaskList`
-   - `EnhancedFilters` → `TaskFilters`
-   - `QuickAddTaskDialog` → `QuickAddDialog`
-   - `TaskFormDialog` → `TaskFormDialog` (kept the same name)
-   - `TaskDetailDialog` → `TaskDetailDialog` (kept the same name)
-   - `TaskDetailPanel` → `TaskDetailPanel` (kept the same name)
-
-3. Created index.ts files in each folder to export the components and maintain backward compatibility.
-
-4. Updated imports in the TaskDetailDialog to use the new import path for TaskFormDialog.
-
-Next steps:
-
-1. Update imports in all files that use these components
-2. Remove the old component files once all imports are updated
-3. Continue with the rest of the files in the checklist
+- [ ] Add code block support
+  - [ ] Syntax highlighting
+  - [ ] Code-specific formatting
+- [ ] Implement integrations
+  - [ ] GitHub/GitLab
+  - [ ] External tools
+- [ ] Create developer-focused templates
+  - [ ] Task templates
+  - [ ] Development workflow views

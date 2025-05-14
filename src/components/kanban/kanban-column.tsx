@@ -32,6 +32,8 @@ interface KanbanColumnProps {
   tasks: Task[];
   projectId: string;
   onTaskClick: (taskId: string) => void;
+  onEditClick: (taskId: string) => void;
+  onTaskUpdate?: (taskId: string, data: Partial<Task>) => Promise<void>;
 }
 
 export function KanbanColumn({
@@ -39,6 +41,8 @@ export function KanbanColumn({
   tasks,
   projectId,
   onTaskClick,
+  onEditClick,
+  onTaskUpdate,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: status,
@@ -92,8 +96,8 @@ export function KanbanColumn({
         isOver
           ? "ring-2 ring-primary scale-[1.02] shadow-md"
           : isDropAnimating
-          ? "bg-accent/20 scale-[1.01]"
-          : ""
+            ? "bg-accent/20 scale-[1.01]"
+            : ""
       }`}
     >
       <div className="mb-3 flex items-center gap-2 p-2">
@@ -127,6 +131,8 @@ export function KanbanColumn({
                 task={task}
                 projectId={projectId}
                 onTaskClick={onTaskClick}
+                onEditClick={onEditClick}
+                onTaskUpdate={onTaskUpdate}
               />
             ))
           )}

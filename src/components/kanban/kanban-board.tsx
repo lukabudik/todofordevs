@@ -58,6 +58,7 @@ export function KanbanBoard({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [openInEditMode, setOpenInEditMode] = useState(false);
 
   // Define the statuses for the columns
   const statuses = ["To Do", "In Progress", "Blocked", "Done"];
@@ -170,7 +171,15 @@ export function KanbanBoard({
                 status={status}
                 tasks={tasksByStatus[status] || []}
                 projectId={projectId}
-                onTaskClick={setSelectedTaskId}
+                onTaskClick={(taskId) => {
+                  setSelectedTaskId(taskId);
+                  setOpenInEditMode(false);
+                }}
+                onEditClick={(taskId) => {
+                  setSelectedTaskId(taskId);
+                  setOpenInEditMode(true);
+                }}
+                onTaskUpdate={onTaskUpdate}
               />
             ))}
           </div>
@@ -216,11 +225,15 @@ export function KanbanBoard({
       <TaskDetailPanel
         taskId={selectedTaskId}
         projectId={projectId}
-        onClose={() => setSelectedTaskId(null)}
+        onClose={() => {
+          setSelectedTaskId(null);
+          setOpenInEditMode(false);
+        }}
         onTaskUpdate={() => {
           // Refresh the task list
           window.location.reload();
         }}
+        initialEditMode={openInEditMode}
       />
     </div>
   );
