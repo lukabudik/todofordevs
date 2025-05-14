@@ -388,7 +388,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/terms"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Terms of Service
@@ -396,7 +396,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/privacy"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Privacy Policy
