@@ -56,19 +56,20 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
   - [x] Remove My Tasks link from command palette
   - [x] Delete My Tasks page and API endpoint
   - [x] Plan for future central hub implementation
-- [ ] Create a clear navigation hierarchy
-  - [ ] Dashboard (overview)
-  - [ ] Projects (list and management)
-  - [ ] Settings (user and workspace)
-- [ ] Implement a collapsible sidebar similar to VS Code/GitHub
-  - [ ] Add collapse/expand functionality
-  - [ ] Show icons only when collapsed
-  - [ ] Add tooltips for collapsed state
+- [ ] Implement Notion-like navigation flow
+  - [x] Create marketing-focused landing page for non-authenticated users
+  - [ ] Remove dedicated Projects page
+  - [x] Auto-redirect authenticated users to their first project
+  - [x] Enhance project switcher in top bar
+  - [ ] Update navigation links and redirects
 
 ### 2.2 Contextual Top Bar
 
-- [ ] Redesign top bar to focus on context-specific actions
-  - [ ] Update `navbar.tsx` to be context-aware
+- [x] Redesign top bar to focus on context-specific actions
+  - [x] Update `navbar.tsx` to be context-aware
+  - [x] Improve logo and branding
+  - [x] Add proper padding and spacing
+  - [x] Remove "New Task" button from top bar
 - [ ] Implement breadcrumbs for current location
   - [ ] Create `Breadcrumbs` component
   - [ ] Show path: Project > Task
@@ -202,6 +203,11 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
     - [x] Add visual cues for dragging
   - [ ] Implement column management
   - [ ] Redesign task cards
+- [ ] Implement Notion-like navigation flow
+  - [x] Create marketing landing page ✨ (bold, minimalistic, focused design)
+  - [x] Auto-redirect to first project
+  - [x] Enhance project switcher
+  - [ ] Remove dedicated Projects page
 - [ ] Add keyboard shortcuts
   - [ ] Define shortcut system
   - [ ] Implement in command palette

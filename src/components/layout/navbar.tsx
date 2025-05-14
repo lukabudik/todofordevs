@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -11,37 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Plus } from "lucide-react";
+import { User, LogOut, Braces } from "lucide-react";
 import { ProjectSwitcher } from "@/components/projects/project-switcher";
-import { Button } from "@/components/ui/button";
-import { QuickAddDialog } from "@/components/tasks/dialogs";
 import { CommandPalette } from "@/components/command/command-palette";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
-  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-
-  // Handle keyboard shortcut (Shift+N)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if Shift+N is pressed
-      if (e.shiftKey && e.key === "N") {
-        // Prevent the default browser behavior
-        e.preventDefault();
-
-        // Only open the dialog if the user is authenticated
-        if (isAuthenticated) {
-          setIsQuickAddOpen(true);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isAuthenticated]);
 
   // Generate initials for avatar if no image is available
   const getInitials = () => {
@@ -58,10 +33,20 @@ export function Navbar() {
     <>
       <CommandPalette />
       <header className="sticky top-0 z-50 w-full border-b bg-background">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-16 items-center justify-between px-6 md:px-8 lg:px-10">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl font-bold">TodoForDevs</span>
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Braces className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold leading-none">
+                  TodoForDevs
+                </span>
+                <span className="text-xs text-muted-foreground leading-none">
+                  for developer teams
+                </span>
+              </div>
             </Link>
             {isAuthenticated && (
               <>
@@ -70,26 +55,6 @@ export function Navbar() {
             )}
           </div>
           <div className="flex items-center gap-4">
-            {isAuthenticated && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 gap-1"
-                  title="Quick Add Task (Shift+N)"
-                  onClick={() => setIsQuickAddOpen(true)}
-                  data-quick-add-trigger="true"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="sr-only md:not-sr-only">New Task</span>
-                </Button>
-
-                <QuickAddDialog
-                  isOpen={isQuickAddOpen}
-                  onOpenChange={setIsQuickAddOpen}
-                />
-              </>
-            )}
             <ThemeToggle />
             <nav className="flex items-center gap-4">
               {isAuthenticated ? (

@@ -9,6 +9,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -20,7 +23,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, FolderIcon, PlusIcon, Settings } from "lucide-react";
+import {
+  ChevronDown,
+  FolderIcon,
+  PlusIcon,
+  Settings,
+  Clock,
+  CheckIcon,
+  FolderOpen,
+  Home,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Project {
   id: string;
@@ -91,36 +104,108 @@ export function ProjectSwitcher() {
     };
   }, []);
 
+  // Get recent projects (last 3 accessed)
+  const recentProjects = [...projects]
+    .sort((a, b) => {
+      // If current project, put it first
+      if (a.id === currentProject?.id) return -1;
+      if (b.id === currentProject?.id) return 1;
+      return 0;
+    })
+    .slice(0, 3);
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             id="project-switcher-trigger"
-            variant="outline"
-            className="flex items-center gap-2 px-3"
+            variant={currentProject ? "default" : "outline"}
+            className={cn(
+              "flex h-9 items-center gap-2 px-4 py-2 transition-all",
+              currentProject && "bg-primary text-primary-foreground"
+            )}
           >
-            <FolderIcon className="h-4 w-4" />
-            <span className="max-w-[150px] truncate">
-              {currentProject ? currentProject.name : "Projects"}
+            {currentProject ? (
+              <FolderOpen className="h-4 w-4" />
+            ) : (
+              <FolderIcon className="h-4 w-4" />
+            )}
+            <span className="max-w-[180px] truncate font-medium">
+              {currentProject ? currentProject.name : "Select Project"}
             </span>
-            <ChevronDown className="h-4 w-4 opacity-50" />
+            <ChevronDown className="h-4 w-4 opacity-70" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuItem asChild>
+        <DropdownMenuContent align="start" className="w-64">
+          <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+            Switch Project
+            <DropdownMenuShortcut>Alt+P</DropdownMenuShortcut>
+          </DropdownMenuLabel>
+
+          {/* Recent projects section */}
+          {recentProjects.length > 0 && (
+            <DropdownMenuGroup>
+              {recentProjects.map((project) => (
+                <DropdownMenuItem
+                  key={`recent-${project.id}`}
+                  asChild
+                  className={cn(
+                    "flex items-center py-2",
+                    currentProject?.id === project.id && "bg-accent/50"
+                  )}
+                >
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="flex w-full cursor-pointer items-center gap-2"
+                  >
+                    {currentProject?.id === project.id ? (
+                      <CheckIcon className="h-4 w-4 text-primary" />
+                    ) : (
+                      <FolderIcon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 truncate">{project.name}</span>
+                    {currentProject?.id === project.id && (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          router.push(`/projects/${project.id}/settings`);
+                        }}
+                        className="ml-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-accent"
+                      >
+                        <Settings className="h-3 w-3" />
+                      </span>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          )}
+
+          <DropdownMenuSeparator />
+
+          {/* All projects section */}
+          <DropdownMenuItem asChild className="py-2">
             <Link
               href="/projects"
               className="flex cursor-pointer items-center gap-2"
             >
+              <Home className="h-4 w-4 text-muted-foreground" />
               <span>All Projects</span>
             </Link>
           </DropdownMenuItem>
 
           {projects.length > 0 && <DropdownMenuSeparator />}
 
+          {/* Projects list */}
           {isLoading ? (
-            <DropdownMenuItem disabled>Loading projects...</DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                <span>Loading projects...</span>
+              </div>
+            </DropdownMenuItem>
           ) : error ? (
             <DropdownMenuItem disabled className="text-destructive">
               {error}
@@ -128,38 +213,38 @@ export function ProjectSwitcher() {
           ) : projects.length === 0 ? (
             <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
           ) : (
-            projects.map((project) => (
-              <DropdownMenuItem
-                key={project.id}
-                asChild
-                className={
-                  currentProject?.id === project.id ? "bg-accent/50" : ""
-                }
-              >
-                <Link
-                  href={`/projects/${project.id}`}
-                  className="flex w-full cursor-pointer items-center justify-between"
-                >
-                  <span className="truncate">{project.name}</span>
-                  {currentProject?.id === project.id && (
-                    <Link
-                      href={`/projects/${project.id}/settings`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="ml-2 flex h-6 w-6 items-center justify-center rounded-full hover:bg-accent"
-                    >
-                      <Settings className="h-3 w-3" />
-                    </Link>
+            <DropdownMenuGroup>
+              {projects.map((project) => (
+                <DropdownMenuItem
+                  key={project.id}
+                  asChild
+                  className={cn(
+                    "py-2",
+                    currentProject?.id === project.id && "bg-accent/50"
                   )}
-                </Link>
-              </DropdownMenuItem>
-            ))
+                >
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="flex w-full cursor-pointer items-center gap-2"
+                  >
+                    {currentProject?.id === project.id ? (
+                      <CheckIcon className="h-4 w-4 text-primary" />
+                    ) : (
+                      <FolderIcon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 truncate">{project.name}</span>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
           )}
 
           <DropdownMenuSeparator />
 
+          {/* Create new project */}
           <DropdownMenuItem
             onClick={() => setIsNewProjectDialogOpen(true)}
-            className="flex cursor-pointer items-center gap-2 text-primary"
+            className="flex cursor-pointer items-center gap-2 py-2 text-primary"
             data-new-project-trigger="true"
           >
             <PlusIcon className="h-4 w-4" />
