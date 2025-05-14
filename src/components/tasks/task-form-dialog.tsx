@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MarkdownEditor } from "@/components/markdown/markdown-editor";
+import { EnhancedMarkdownEditor } from "@/components/markdown";
 import {
   Select,
   SelectContent,
@@ -219,7 +219,7 @@ export function TaskFormDialog({
               <Label htmlFor="description" className="text-left">
                 Description
               </Label>
-              <MarkdownEditor
+              <EnhancedMarkdownEditor
                 value={description}
                 onChange={setDescription}
                 placeholder="Task description (supports Markdown)"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ProjectOptions } from "@/components/projects/project-options";
 import { ProjectCollaborators } from "@/components/projects/project-collaborators";
@@ -8,6 +8,10 @@ import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
 import { TaskOptions } from "@/components/tasks/task-options";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { useSession } from "next-auth/react";
+import { ViewSwitcher } from "@/components/kanban/view-switcher";
+import { KanbanBoard } from "@/components/kanban/kanban-board";
+import { EnhancedTaskList } from "@/components/tasks/enhanced-list";
+import { EnhancedFilters } from "@/components/tasks/filters";
 
 interface Project {
   id: string;
@@ -33,8 +37,8 @@ interface Task {
   assigneeId: string | null;
   assignee: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
     image: string | null;
   } | null;
 }
@@ -57,10 +61,47 @@ export default function ProjectPage() {
     }>
   >([]);
 
+  // View state (list or board)
+  const [currentView, setCurrentView] = useState<"list" | "board">("list");
+
+  // Function to handle task updates (for drag-and-drop status changes)
+  const handleTaskUpdate = async (taskId: string, data: Partial<Task>) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update task");
+      }
+
+      // Update the task in the local state
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          tasks: prev.tasks.map((task) =>
+            task.id === taskId ? { ...task, ...data } : task
+          ),
+        };
+      });
+    } catch (err) {
+      console.error("Error updating task:", err);
+    }
+  };
+
   // Task filtering and sorting state
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(null);
+  const [dueDateFilter, setDueDateFilter] = useState<string | null>(null);
+  const [showNoAssignee, setShowNoAssignee] = useState(false);
+  const [showNoDueDate, setShowNoDueDate] = useState(false);
   const [sortBy, setSortBy] = useState("updatedAt");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -114,20 +155,110 @@ export default function ProjectPage() {
     fetchCollaborators();
   }, [projectId]);
 
+  // Handle filter changes from EnhancedFilters component
+  const handleFiltersChange = useCallback(
+    (filters: {
+      searchQuery: string;
+      statusFilter: string | null;
+      priorityFilter: string | null;
+      assigneeFilter: string | null;
+      dueDateFilter: string | null;
+      showNoAssignee: boolean;
+      showNoDueDate: boolean;
+    }) => {
+      setSearchQuery(filters.searchQuery);
+      setStatusFilter(filters.statusFilter);
+      setPriorityFilter(filters.priorityFilter);
+      setAssigneeFilter(filters.assigneeFilter);
+      setDueDateFilter(filters.dueDateFilter);
+      setShowNoAssignee(filters.showNoAssignee);
+      setShowNoDueDate(filters.showNoDueDate);
+    },
+    []
+  );
+
+  // Handle sort changes from EnhancedFilters component
+  const handleSortChange = useCallback(
+    (newSortBy: string, newSortOrder: string) => {
+      setSortBy(newSortBy);
+      setSortOrder(newSortOrder);
+    },
+    []
+  );
+
   // Filter and sort tasks
   const filteredTasks =
     project?.tasks.filter((task) => {
-      if (statusFilter && task.status !== statusFilter) return false;
-      if (priorityFilter && task.priority !== priorityFilter) return false;
-      if (assigneeFilter) {
-        if (assigneeFilter === "unassigned" && task.assigneeId !== null)
-          return false;
-        if (
-          assigneeFilter !== "unassigned" &&
-          task.assigneeId !== assigneeFilter
-        )
-          return false;
+      // Text search filter
+      if (searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
+        const titleMatch = task.title.toLowerCase().includes(searchLower);
+        const descriptionMatch = task.description
+          ? task.description.toLowerCase().includes(searchLower)
+          : false;
+
+        if (!titleMatch && !descriptionMatch) return false;
       }
+
+      // Status filter
+      if (statusFilter && task.status !== statusFilter) return false;
+
+      // Priority filter
+      if (priorityFilter && task.priority !== priorityFilter) return false;
+
+      // Assignee filter
+      if (showNoAssignee && task.assigneeId !== null) return false;
+      if (assigneeFilter && task.assigneeId !== assigneeFilter) return false;
+
+      // Due date filter
+      if (showNoDueDate && task.dueDate !== null) return false;
+      if (dueDateFilter) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const taskDueDate = task.dueDate ? new Date(task.dueDate) : null;
+
+        if (dueDateFilter === "Today") {
+          if (!taskDueDate) return false;
+
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+
+          if (taskDueDate < today || taskDueDate >= tomorrow) return false;
+        } else if (dueDateFilter === "This Week") {
+          if (!taskDueDate) return false;
+
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay());
+
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+          if (taskDueDate < startOfWeek || taskDueDate >= endOfWeek)
+            return false;
+        } else if (dueDateFilter === "This Month") {
+          if (!taskDueDate) return false;
+
+          const startOfMonth = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+          );
+          const endOfMonth = new Date(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            0
+          );
+
+          if (taskDueDate < startOfMonth || taskDueDate > endOfMonth)
+            return false;
+        } else if (dueDateFilter === "Overdue") {
+          if (!taskDueDate || taskDueDate >= today) return false;
+        } else if (dueDateFilter === "No Due Date") {
+          if (taskDueDate !== null) return false;
+        }
+      }
+
       return true;
     }) || [];
 
@@ -216,95 +347,41 @@ export default function ProjectPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <ViewSwitcher
+            currentView={currentView}
+            onViewChange={setCurrentView}
+          />
           <ProjectCollaborators projectId={projectId} isOwner={isOwner} />
           <TaskFormDialog projectId={projectId} mode="create" />
           <ProjectOptions project={project} />
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-4">
-        {/* Status Filter */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Status</label>
-          <select
-            value={statusFilter || ""}
-            onChange={(e) => setStatusFilter(e.target.value || null)}
-            className="rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">All Statuses</option>
-            <option value="To Do">To Do</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Blocked">Blocked</option>
-            <option value="Done">Done</option>
-          </select>
-        </div>
+      {/* Only show filters in list view */}
+      {currentView === "list" && (
+        <EnhancedFilters
+          projectId={projectId}
+          collaborators={collaborators}
+          onFiltersChange={handleFiltersChange}
+          onSortChange={handleSortChange}
+        />
+      )}
 
-        {/* Priority Filter */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Priority</label>
-          <select
-            value={priorityFilter || ""}
-            onChange={(e) => setPriorityFilter(e.target.value || null)}
-            className="rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">All Priorities</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
-          </select>
+      {/* Conditional rendering based on view */}
+      {currentView === "board" ? (
+        <div className="h-[calc(100vh-240px)]">
+          <KanbanBoard
+            tasks={project.tasks.map((task) => ({
+              ...task,
+              projectId,
+            }))}
+            projectId={projectId}
+            onTaskUpdate={handleTaskUpdate}
+            onViewChange={setCurrentView}
+            currentView={currentView}
+          />
         </div>
-
-        {/* Assignee Filter */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Assignee</label>
-          <select
-            value={assigneeFilter || ""}
-            onChange={(e) => setAssigneeFilter(e.target.value || null)}
-            className="rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">All Assignees</option>
-            <option value="unassigned">Unassigned</option>
-            {collaborators.map((collaborator) => (
-              <option key={collaborator.id} value={collaborator.id}>
-                {collaborator.name || collaborator.email || "Unknown"}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Sort By */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Sort By</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="updatedAt">Last Updated</option>
-            <option value="createdAt">Created Date</option>
-            <option value="dueDate">Due Date</option>
-            <option value="priority">Priority</option>
-            <option value="status">Status</option>
-            <option value="title">Title</option>
-          </select>
-        </div>
-
-        {/* Sort Order */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Order</label>
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-        </div>
-      </div>
-
-      {sortedTasks.length === 0 ? (
+      ) : filteredTasks.length === 0 ? (
         <div className="flex h-60 flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
           <h2 className="mb-2 text-xl font-semibold">No tasks found</h2>
           <p className="mb-6 text-muted-foreground">
@@ -315,83 +392,44 @@ export default function ProjectPage() {
           <TaskFormDialog projectId={projectId} mode="create" />
         </div>
       ) : (
-        <div className="space-y-4">
-          {sortedTasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex flex-col rounded-lg border bg-card p-4 shadow-sm transition-colors hover:bg-accent/50 sm:p-6"
-            >
-              <div className="mb-2 flex items-start justify-between">
-                <h3 className="text-lg font-semibold">{task.title}</h3>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`h-2 w-2 rounded-full ${
-                        priorityColors[
-                          task.priority as keyof typeof priorityColors
-                        ] || "bg-gray-500"
-                      }`}
-                    />
-                    <span className="text-xs font-medium">{task.priority}</span>
-                  </div>
-                  <TaskOptions
-                    task={{
-                      ...task,
-                      projectId,
-                      assigneeId: task.assigneeId,
-                    }}
-                  />
-                </div>
-              </div>
+        <EnhancedTaskList
+          tasks={sortedTasks.map((task) => {
+            // Ensure assignee information is properly included
+            let assignee = task.assignee;
 
-              <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <div className="flex items-center">
-                  <div
-                    className={`mr-2 h-2 w-2 rounded-full ${
-                      statusColors[task.status as keyof typeof statusColors] ||
-                      "bg-gray-500"
-                    }`}
-                  />
-                  <span className="text-sm">{task.status}</span>
-                </div>
+            // If task has assigneeId but no assignee object, try to find the collaborator
+            if (!assignee && task.assigneeId) {
+              const collaborator = collaborators.find(
+                (c) => c.id === task.assigneeId
+              );
+              if (collaborator) {
+                // Create a properly structured assignee object
+                // Try to get the user's image from the session if it's the current user
+                const isCurrentUser = session?.user?.id === collaborator.id;
+                // Ensure image is either string or null (not undefined)
+                const userImage =
+                  isCurrentUser && session?.user?.image
+                    ? session.user.image
+                    : null;
 
-                {task.dueDate && (
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Due: </span>
-                    {new Date(task.dueDate).toLocaleDateString()}
-                  </div>
-                )}
+                assignee = {
+                  id: collaborator.id,
+                  name: collaborator.name,
+                  email: collaborator.email,
+                  image: userImage, // Use the user's image if available
+                };
+              }
+            }
 
-                {task.assignee ? (
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Assigned to: </span>
-                    {task.assignee.name}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    Unassigned
-                  </div>
-                )}
-              </div>
-
-              {task.description && (
-                <div className="mb-4">
-                  <MarkdownRenderer
-                    content={
-                      task.description.length > 300
-                        ? `${task.description.substring(0, 300)}...`
-                        : task.description
-                    }
-                  />
-                </div>
-              )}
-
-              <div className="mt-auto text-xs text-muted-foreground">
-                Updated {new Date(task.updatedAt).toLocaleString()}
-              </div>
-            </div>
-          ))}
-        </div>
+            return {
+              ...task,
+              projectId,
+              assignee,
+            };
+          })}
+          projectId={projectId}
+          onTaskUpdate={handleTaskUpdate}
+        />
       )}
     </div>
   );

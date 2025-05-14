@@ -558,9 +558,25 @@ This document outlines the detailed development plan for the TodoForDevs MVP, or
 
 This phase focuses on transforming the application to be truly developer-focused, with an IDE-inspired interface, keyboard-driven workflows, and features that make it feel familiar and intuitive to developers.
 
+### Task 8.6: Task Detail View Implementation
+
+- [x] **8.6.1: Create Task Detail Dialog Component**
+
+  - Implement a dialog component to display full task details
+  - Show all task metadata (status, priority, due date, assignee, etc.)
+  - Display the full task description with proper Markdown rendering
+  - Include options to edit and delete the task
+  - Add "Mark as Done" / "Reopen Task" functionality
+
+- [x] **8.6.2: Update Task List to Use Detail View**
+  - Make task titles clickable to open the detail view
+  - Remove description preview from the task list
+  - Ensure proper state management for opening/closing the detail view
+  - Connect the detail view to task update and delete APIs
+
 ### Task 8.1: Core Navigation & Layout Redesign
 
-- [ ] **8.1.1: Replace Sidebar with Project Switcher in Navbar**
+- [x] **8.1.1: Replace Sidebar with Project Switcher in Navbar**
 
   - Remove the current sidebar that takes up screen space
   - Implement a dropdown-based project switcher in the Navbar
@@ -572,7 +588,7 @@ This phase focuses on transforming the application to be truly developer-focused
   - Style to resemble IDE workspace/project switchers
   - Ensure keyboard accessibility (e.g., Alt+P to open)
 
-- [ ] **8.1.2: Implement Command Palette**
+- [x] **8.1.2: Implement Command Palette**
 
   - Install and configure a command palette library (or build custom)
   - Create a global keyboard shortcut (e.g., Ctrl+K or Cmd+K) to open
@@ -585,15 +601,15 @@ This phase focuses on transforming the application to be truly developer-focused
   - Style to resemble VS Code's command palette
   - Ensure proper keyboard navigation within the palette
 
-- [ ] **8.1.3: Add Global Quick Add Task Button**
+- [x] **8.1.3: Add Global Quick Add Task Button**
 
   - Add a prominent "+" button in the Navbar
-  - Implement keyboard shortcut (e.g., Ctrl+N or Cmd+N)
+  - Implement keyboard shortcut (Shift+N)
   - Create a streamlined task creation modal
   - Auto-select current project when opened from a project page
   - Focus on the title field automatically for immediate typing
 
-- [ ] **8.1.4: Implement Breadcrumbs Navigation**
+- [x] **8.1.4: Implement Breadcrumbs Navigation**
   - Add breadcrumbs below the Navbar
   - Show current navigation path (e.g., Projects > Project Name > Task)
   - Make each segment clickable for easy navigation
@@ -601,7 +617,7 @@ This phase focuses on transforming the application to be truly developer-focused
 
 ### Task 8.2: Task Management Enhancements
 
-- [ ] **8.2.1: Create "My Tasks" View**
+- [x] **8.2.1: Create "My Tasks" View**
 
   - Implement a dedicated page showing all tasks assigned to the current user
   - Group tasks by project
@@ -609,7 +625,7 @@ This phase focuses on transforming the application to be truly developer-focused
   - Add a link to this view in the Navbar
   - Ensure it's accessible via the Command Palette
 
-- [ ] **8.2.2: Implement Kanban Board View**
+- [x] **8.2.2: Implement Kanban Board View**
 
   - Create an alternative view for tasks using a Kanban board layout
   - Organize columns by status ("To Do", "In Progress", "Blocked", "Done")
@@ -617,7 +633,7 @@ This phase focuses on transforming the application to be truly developer-focused
   - Add a view switcher between List and Board views
   - Ensure keyboard navigation works in both views
 
-- [ ] **8.2.3: Enhance Task List View**
+- [x] **8.2.3: Enhance Task List View**
 
   - Redesign the task list for higher information density
   - Add customizable columns (show/hide specific fields)
@@ -626,7 +642,8 @@ This phase focuses on transforming the application to be truly developer-focused
   - Improve visual hierarchy with clearer status and priority indicators
   - Ensure consistent styling with monospaced fonts where appropriate
 
-- [ ] **8.2.4: Improve Task Filtering and Sorting**
+- [x] **8.2.3: Enhance Task List View**
+- [x] **8.2.4: Improve Task Filtering and Sorting**
 
   - Redesign the filter controls to be more prominent
   - Add ability to save filter presets
@@ -634,7 +651,8 @@ This phase focuses on transforming the application to be truly developer-focused
   - Add advanced filtering options (e.g., tasks with no due date)
   - Persist filter preferences per project using localStorage
 
-- [ ] **8.2.5: Enhance Markdown Editor Experience**
+- [x] **8.2.4: Improve Task Filtering and Sorting**
+- [x] **8.2.5: Enhance Markdown Editor Experience**
   - Improve the Markdown editor with better syntax highlighting
   - Add a toolbar for common Markdown formatting
   - Implement a side-by-side edit/preview mode
