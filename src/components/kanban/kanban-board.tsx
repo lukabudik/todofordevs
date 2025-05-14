@@ -226,13 +226,7 @@ export function KanbanBoard({
                     </h3>
                   </div>
                 </div>
-                {activeTask.description && (
-                  <div className="mb-2 max-h-24 overflow-hidden text-sm text-muted-foreground pl-6">
-                    {activeTask.description.length > 50
-                      ? `${activeTask.description.substring(0, 50)}...`
-                      : activeTask.description}
-                  </div>
-                )}
+                {/* Description removed for cleaner UI */}
                 <div className="mt-2 text-xs text-primary/70 font-medium pl-6">
                   Moving to: {activeOverId || "..."}
                 </div>

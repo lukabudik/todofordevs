@@ -107,14 +107,14 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 
 ### 4.1 Design System Refinement
 
-- [ ] Replace emojis with consistent iconography
-  - [ ] Update all instances of emoji usage with Lucide icons
-  - [ ] Status icons: To Do, In Progress, Blocked, Done
+- [x] Replace emojis with consistent iconography
+  - [x] Update all instances of emoji usage with Lucide icons
+  - [x] Status icons: To Do, In Progress, Blocked, Done
   - [ ] Priority icons: Low, Medium, High, Urgent
-- [ ] Implement a cleaner, more minimalistic design
-  - [ ] Reduce visual noise
-  - [ ] Increase whitespace
-  - [ ] Simplify UI elements
+- [x] Implement a cleaner, more minimalistic design
+  - [x] Reduce visual noise
+  - [x] Increase whitespace
+  - [x] Simplify UI elements
 - [ ] Create a cohesive color system
   - [ ] Define semantic colors for status, priority
   - [ ] Ensure accessibility (contrast ratios)
@@ -122,9 +122,9 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 
 ### 4.2 Task Card Redesign
 
-- [ ] Simplify task cards
-  - [ ] Focus on title, status, assignee
-  - [ ] Show description preview only when relevant
+- [x] Simplify task cards
+  - [x] Focus on title, status, assignee
+  - [x] Show description preview only when relevant
 - [ ] Improve visual hierarchy
   - [ ] Clear typographic scale
   - [ ] Consistent spacing
@@ -201,9 +201,9 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 - [ ] Move "My Tasks" to sidebar
   - [ ] Update navigation structure
   - [ ] Implement breadcrumbs
-- [ ] Remove emojis and standardize iconography
-  - [ ] Replace all emoji usage
-  - [ ] Implement consistent icon system
+- [x] Remove emojis and standardize iconography
+  - [x] Replace all emoji usage
+  - [x] Implement consistent icon system
 
 ### Phase 2: Interaction Improvements
 

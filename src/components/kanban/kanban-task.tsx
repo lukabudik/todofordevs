@@ -143,17 +143,7 @@ export function KanbanTask({
         </div>
       </div>
 
-      {task.description && (
-        <div className="mb-2 max-h-24 overflow-hidden text-sm text-muted-foreground rounded-sm">
-          <MarkdownRenderer
-            content={
-              task.description.length > 100
-                ? `${task.description.substring(0, 100)}...`
-                : task.description
-            }
-          />
-        </div>
-      )}
+      {/* Description removed for cleaner UI */}
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
         {formattedDueDate && (

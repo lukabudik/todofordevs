@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { TaskActions } from "@/components/tasks/TaskActions";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import {
+  Settings,
+  CircleDashed,
+  CircleEllipsis,
+  AlertCircle,
+  CheckCircle,
+  User,
+} from "lucide-react";
 import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 import {
   DropdownMenu,
@@ -80,10 +87,10 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
 
   // Status icons
   const statusIcons = {
-    "To Do": "📋",
-    "In Progress": "🔄",
-    Blocked: "🚫",
-    Done: "✅",
+    "To Do": <CircleDashed className="h-4 w-4 text-gray-500" />,
+    "In Progress": <CircleEllipsis className="h-4 w-4 text-blue-500" />,
+    Blocked: <AlertCircle className="h-4 w-4 text-red-500" />,
+    Done: <CheckCircle className="h-4 w-4 text-green-500" />,
   };
 
   // Handle column visibility toggle
@@ -225,17 +232,11 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
                     "border-gray-500"
                   }`}
                 >
-                  <span
-                    className={`mr-1 h-1.5 w-1.5 rounded-full ${
-                      statusDotColors[
-                        task.status as keyof typeof statusDotColors
-                      ] || "bg-gray-500"
-                    }`}
-                  ></span>
-                  <span className="text-foreground">
-                    {statusIcons[task.status as keyof typeof statusIcons] ||
-                      "📋"}{" "}
-                    {task.status}
+                  <span className="text-foreground flex items-center gap-1">
+                    {statusIcons[task.status as keyof typeof statusIcons] || (
+                      <CircleDashed className="h-4 w-4 text-gray-500" />
+                    )}
+                    <span>{task.status}</span>
                   </span>
                 </div>
               </div>
@@ -279,7 +280,7 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
                       ) : task.assignee ? (
                         getInitials(task.assignee)
                       ) : (
-                        "👤"
+                        <User className="h-4 w-4 text-primary-foreground" />
                       )}
                     </div>
                     <span className="text-xs">

@@ -7,6 +7,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { KanbanTask } from "./kanban-task";
+import {
+  CircleDashed,
+  CircleEllipsis,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 interface Task {
   id: string;
@@ -77,10 +83,10 @@ export function KanbanColumn({
 
   // Status icons
   const statusIcons = {
-    "To Do": "📋",
-    "In Progress": "🔄",
-    Blocked: "🚫",
-    Done: "✅",
+    "To Do": <CircleDashed className="h-5 w-5 text-gray-500" />,
+    "In Progress": <CircleEllipsis className="h-5 w-5 text-blue-500" />,
+    Blocked: <AlertCircle className="h-5 w-5 text-red-500" />,
+    Done: <CheckCircle className="h-5 w-5 text-green-500" />,
   };
 
   // Get color for current status
@@ -88,7 +94,9 @@ export function KanbanColumn({
     statusColors[status as keyof typeof statusColors] || "bg-gray-500";
 
   // Get icon for current status
-  const statusIcon = statusIcons[status as keyof typeof statusIcons] || "📋";
+  const statusIcon = statusIcons[status as keyof typeof statusIcons] || (
+    <CircleDashed className="h-5 w-5 text-gray-500" />
+  );
 
   return (
     <div
@@ -101,9 +109,9 @@ export function KanbanColumn({
       }`}
     >
       <div className="mb-3 flex items-center gap-2 p-2">
-        <div className={`h-3 w-3 rounded-full ${statusColor}`} />
-        <h3 className="text-lg font-semibold text-foreground">
-          {statusIcon} {status}
+        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          {statusIcon}
+          <span>{status}</span>
         </h3>
         <div className="ml-auto rounded-full bg-muted px-2 py-1 text-xs font-medium">
           {tasks.length}

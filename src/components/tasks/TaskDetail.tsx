@@ -10,7 +10,6 @@ import { formatDistanceToNow } from "date-fns";
 import {
   Calendar,
   Clock,
-  Edit,
   Save,
   X,
   Trash2,
@@ -18,6 +17,9 @@ import {
   CheckCircle2,
   Eye,
   Pencil,
+  CircleDashed,
+  CircleEllipsis,
+  CheckCircle,
 } from "lucide-react";
 import {
   Select,
@@ -97,6 +99,14 @@ export function TaskDetail({
     "In Progress": "bg-blue-500",
     Blocked: "bg-red-500",
     Done: "bg-green-500",
+  };
+
+  // Status icons
+  const statusIcons = {
+    "To Do": <CircleDashed className="h-4 w-4 text-gray-500" />,
+    "In Progress": <CircleEllipsis className="h-4 w-4 text-blue-500" />,
+    Blocked: <AlertCircle className="h-4 w-4 text-red-500" />,
+    Done: <CheckCircle className="h-4 w-4 text-green-500" />,
   };
 
   // Status options
@@ -517,12 +527,9 @@ export function TaskDetail({
                 </Select>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`h-3 w-3 rounded-full ${
-                      statusColors[task.status as keyof typeof statusColors] ||
-                      "bg-gray-500"
-                    }`}
-                  />
+                  {statusIcons[task.status as keyof typeof statusIcons] || (
+                    <CircleDashed className="h-4 w-4 text-gray-500" />
+                  )}
                   <span className="font-medium">{task.status}</span>
                 </div>
               )}
