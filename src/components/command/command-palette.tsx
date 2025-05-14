@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/command";
 import {
   FolderIcon,
-  CheckSquare,
   Plus,
   User,
   Settings,
@@ -94,12 +93,6 @@ export function CommandPalette() {
               >
                 <FolderIcon className="mr-2 h-4 w-4" />
                 <span>All Projects</span>
-              </CommandItem>
-              <CommandItem
-                onSelect={() => runCommand(() => router.push("/my-tasks"))}
-              >
-                <CheckSquare className="mr-2 h-4 w-4" />
-                <span>My Tasks</span>
               </CommandItem>
               <CommandItem
                 onSelect={() => runCommand(() => router.push("/profile"))}

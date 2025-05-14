@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Plus, CheckSquare } from "lucide-react";
+import { User, LogOut, Plus } from "lucide-react";
 import { ProjectSwitcher } from "@/components/projects/project-switcher";
 import { Button } from "@/components/ui/button";
 import { QuickAddDialog } from "@/components/tasks/dialogs";
@@ -66,13 +66,6 @@ export function Navbar() {
             {isAuthenticated && (
               <>
                 <ProjectSwitcher />
-                <Link
-                  href="/my-tasks"
-                  className="flex items-center gap-1 text-sm font-medium hover:text-primary"
-                >
-                  <CheckSquare className="h-4 w-4" />
-                  <span>My Tasks</span>
-                </Link>
               </>
             )}
           </div>

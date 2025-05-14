@@ -49,15 +49,16 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 
 ## 2. Navigation & Information Architecture
 
-### 2.1 Sidebar Navigation
+### 2.1 Navigation Redesign
 
-- [ ] Move "My Tasks" from top bar to main sidebar navigation
-  - [ ] Update `navbar.tsx` to remove My Tasks link
-  - [ ] Update `sidebar.tsx` to include My Tasks link
+- [x] Remove "My Tasks" feature completely
+  - [x] Update `navbar.tsx` to remove My Tasks link
+  - [x] Remove My Tasks link from command palette
+  - [x] Delete My Tasks page and API endpoint
+  - [x] Plan for future central hub implementation
 - [ ] Create a clear navigation hierarchy
   - [ ] Dashboard (overview)
   - [ ] Projects (list and management)
-  - [ ] My Tasks (personal task list)
   - [ ] Settings (user and workspace)
 - [ ] Implement a collapsible sidebar similar to VS Code/GitHub
   - [ ] Add collapse/expand functionality
@@ -82,7 +83,7 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 - [ ] Add keyboard shortcuts for common actions
   - [ ] Task creation: Ctrl/Cmd + N
   - [ ] Task search: Ctrl/Cmd + F
-  - [ ] Navigate to My Tasks: Ctrl/Cmd + T
+  - [ ] Quick task navigation: Ctrl/Cmd + T
 - [ ] Implement "go to task" feature
   - [ ] Fuzzy search across all tasks
   - [ ] Recent tasks section
@@ -133,19 +134,6 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
   - [ ] Color accents for status/priority
   - [ ] Position and size to indicate importance
   - [ ] Icons instead of text where appropriate
-
-### 4.3 Status and Priority Visualization
-
-- [ ] Replace emoji status indicators
-  - [ ] Create a color-coded system
-  - [ ] Use consistent icons
-- [ ] Implement consistent priority visualization
-  - [ ] Color scale for priorities
-  - [ ] Icon set for priorities
-- [ ] Use progress bars and visual elements
-  - [ ] Task completion status
-  - [ ] Due date proximity
-  - [ ] Subtask progress
 
 ## 5. Developer-Focused Enhancements
 
@@ -198,9 +186,9 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
   - [x] Create unified TaskForm component
   - [x] Create consistent TaskActions component
   - [x] Consolidate task detail views
-- [ ] Move "My Tasks" to sidebar
-  - [ ] Update navigation structure
-  - [ ] Implement breadcrumbs
+- [x] Remove "My Tasks" feature completely
+  - [x] Update navigation structure
+  - [x] Plan for future central hub
 - [x] Remove emojis and standardize iconography
   - [x] Replace all emoji usage
   - [x] Implement consistent icon system
