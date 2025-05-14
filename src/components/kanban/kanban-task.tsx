@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { TaskActions } from "@/components/tasks/TaskActions";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { formatDistanceToNow } from "date-fns";
+import { GripVertical } from "lucide-react";
 
 interface Task {
   id: string;
@@ -90,12 +91,10 @@ export function KanbanTask({
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`mb-2 flex flex-col rounded-md border bg-card p-3 shadow-sm transition-all duration-200 select-none cursor-pointer ${
+      className={`mb-2 flex flex-col rounded-md border bg-card p-3 shadow-sm transition-all duration-200 select-none ${
         isDragging
-          ? "shadow-none border-dashed"
-          : "hover:bg-accent/50 hover:shadow-md hover:-translate-y-0.5"
+          ? "shadow-lg border-dashed border-primary/50 opacity-50"
+          : "hover:bg-accent/50 hover:shadow-md"
       }`}
       tabIndex={0}
       aria-roledescription="Draggable task"
@@ -103,15 +102,27 @@ export function KanbanTask({
       onClick={(e) => {
         // Prevent click when dragging
         if (!isDragging) {
-          // Don't trigger if clicking on the task options
-          if (!(e.target as HTMLElement).closest(".task-options")) {
+          // Don't trigger if clicking on the task options or drag handle
+          if (
+            !(e.target as HTMLElement).closest(".task-options") &&
+            !(e.target as HTMLElement).closest(".drag-handle")
+          ) {
             onTaskClick(task.id);
           }
         }
       }}
     >
       <div className="mb-2 flex items-start justify-between group">
-        <h3 className="text-base font-medium">{task.title}</h3>
+        <div className="flex items-center gap-2">
+          <div
+            className="drag-handle p-1 -ml-1 rounded-md cursor-grab opacity-40 hover:opacity-100 hover:bg-accent/50 transition-opacity"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <h3 className="text-base font-medium">{task.title}</h3>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100">
             <div

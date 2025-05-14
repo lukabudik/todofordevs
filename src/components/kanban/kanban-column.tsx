@@ -112,8 +112,10 @@ export function KanbanColumn({
 
       <div
         ref={setNodeRef}
-        className={`flex-1 overflow-y-auto rounded-md p-2 transition-colors duration-200 select-none ${
-          isOver ? "bg-accent/30" : "bg-muted/50"
+        className={`flex-1 overflow-y-auto rounded-md p-2 transition-all duration-200 select-none ${
+          isOver
+            ? "bg-accent/30 ring-2 ring-primary/50 ring-inset"
+            : "bg-muted/50"
         }`}
       >
         <SortableContext
@@ -121,20 +123,32 @@ export function KanbanColumn({
           strategy={verticalListSortingStrategy}
         >
           {tasks.length === 0 ? (
-            <div className="flex h-20 items-center justify-center rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-              No tasks
+            <div
+              className={`flex h-20 items-center justify-center rounded-md border-2 border-dashed p-4 text-center text-sm ${
+                isOver
+                  ? "border-primary/50 text-primary/70 animate-pulse"
+                  : "border-muted text-muted-foreground"
+              }`}
+            >
+              {isOver ? "Drop here" : "No tasks"}
             </div>
           ) : (
-            tasks.map((task) => (
-              <KanbanTask
-                key={task.id}
-                task={task}
-                projectId={projectId}
-                onTaskClick={onTaskClick}
-                onEditClick={onEditClick}
-                onTaskUpdate={onTaskUpdate}
-              />
-            ))
+            <>
+              {/* Drop indicator above tasks - only shown when dragging over */}
+              {isOver && (
+                <div className="h-1 w-full border-t-2 border-dashed border-primary/50 my-2 rounded-full"></div>
+              )}
+              {tasks.map((task) => (
+                <KanbanTask
+                  key={task.id}
+                  task={task}
+                  projectId={projectId}
+                  onTaskClick={onTaskClick}
+                  onEditClick={onEditClick}
+                  onTaskUpdate={onTaskUpdate}
+                />
+              ))}
+            </>
           )}
         </SortableContext>
       </div>

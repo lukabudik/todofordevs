@@ -59,6 +59,7 @@ export function KanbanBoard({
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [openInEditMode, setOpenInEditMode] = useState(false);
+  const [activeOverId, setActiveOverId] = useState<string | null>(null);
 
   // Define the statuses for the columns
   const statuses = ["To Do", "In Progress", "Blocked", "Done"];
@@ -115,10 +116,16 @@ export function KanbanBoard({
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
-    if (!over) return;
+    if (!over) {
+      setActiveOverId(null);
+      return;
+    }
 
     const activeId = active.id as string;
     const overId = over.id as string;
+
+    // Update the active over id for the overlay
+    setActiveOverId(overId);
 
     // Find the task being dragged
     const activeTask = tasks.find((task) => task.id === activeId);
@@ -137,8 +144,10 @@ export function KanbanBoard({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
+    // Reset all drag-related state
     setActiveId(null);
     setActiveTask(null);
+    setActiveOverId(null);
 
     if (!over) return;
 
@@ -191,30 +200,42 @@ export function KanbanBoard({
               // Add a slight rotation to the dragged item for a more natural feel
               ({ transform }) => ({
                 ...transform,
-                scaleX: 1.02,
-                scaleY: 1.02,
+                scaleX: 1.05,
+                scaleY: 1.05,
+                rotate: 1,
               }),
             ]}
           >
             {activeTask ? (
               <div
-                className="w-72 rounded-md border bg-card p-3 shadow-lg opacity-90 rotate-1 scale-105"
+                className="w-72 rounded-md border-2 border-primary/30 bg-card p-3 shadow-xl opacity-95"
                 style={{
                   transformOrigin: "0 0",
                   boxShadow:
-                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                    "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                 }}
               >
-                <div className="mb-2 flex items-start justify-between">
-                  <h3 className="text-base font-medium">{activeTask.title}</h3>
+                <div className="mb-2 flex items-start gap-2">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1 rounded-md cursor-grabbing">
+                      <div className="h-4 w-1 bg-primary/30 rounded-full mb-1"></div>
+                      <div className="h-4 w-1 bg-primary/30 rounded-full"></div>
+                    </div>
+                    <h3 className="text-base font-medium">
+                      {activeTask.title}
+                    </h3>
+                  </div>
                 </div>
                 {activeTask.description && (
-                  <div className="mb-2 max-h-24 overflow-hidden text-sm text-muted-foreground">
+                  <div className="mb-2 max-h-24 overflow-hidden text-sm text-muted-foreground pl-6">
                     {activeTask.description.length > 50
                       ? `${activeTask.description.substring(0, 50)}...`
                       : activeTask.description}
                   </div>
                 )}
+                <div className="mt-2 text-xs text-primary/70 font-medium pl-6">
+                  Moving to: {activeOverId || "..."}
+                </div>
               </div>
             ) : null}
           </DragOverlay>

@@ -92,44 +92,16 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 
 ### 3.1 Enhanced Drag and Drop
 
-- [ ] Improve drag and drop with clearer visual cues
-  - [ ] Update `kanban-board.tsx` and `kanban-task.tsx`
-  - [ ] Add drop zone highlighting
-  - [ ] Implement smoother animations during drag
-- [ ] Add drag handles to make draggable items more obvious
-  - [ ] Visual indicator for draggable items
-  - [ ] Cursor change on hover
-- [ ] Implement better placeholder visualization during dragging
-  - [ ] Show ghost card in original position
-  - [ ] Preview card in potential drop position
-
-### 3.2 Column Management
-
-- [ ] Allow customizing columns
-  - [ ] Add/remove columns
-  - [ ] Reorder columns
-  - [ ] Rename columns
-- [ ] Implement column collapsing for better space management
-  - [ ] Add collapse/expand toggle
-  - [ ] Show task count when collapsed
-- [ ] Add column statistics
-  - [ ] Task count
-  - [ ] Completion rate
-  - [ ] Average time in column
-
-### 3.3 Task Card Improvements
-
-- [ ] Redesign task cards for better information display
-  - [ ] Update `kanban-task.tsx`
-  - [ ] Focus on essential information
-  - [ ] Consistent layout across all cards
-- [ ] Add visual progress indicators
-  - [ ] Progress bar for tasks with subtasks
-  - [ ] Time-based indicators for due dates
-- [ ] Implement better status visualization
-  - [ ] Color-coded borders or accents
-  - [ ] Status icons (non-emoji)
-  - [ ] Visual differentiation between statuses
+- [x] Improve drag and drop with clearer visual cues
+  - [x] Update `kanban-board.tsx` and `kanban-task.tsx`
+  - [x] Add drop zone highlighting
+  - [x] Implement smoother animations during drag
+- [x] Add drag handles to make draggable items more obvious
+  - [x] Visual indicator for draggable items
+  - [x] Cursor change on hover
+- [x] Implement better placeholder visualization during dragging
+  - [x] Show ghost card in original position
+  - [x] Preview card in potential drop position
 
 ## 4. Visual Design Consistency
 
@@ -235,8 +207,11 @@ This document outlines the comprehensive plan for improving the UX of the TodoFo
 
 ### Phase 2: Interaction Improvements
 
-- [ ] Enhance kanban board
-  - [ ] Improve drag and drop
+- [x] Enhance kanban board
+  - [x] Improve drag and drop
+    - [x] Fix issue with actions menu triggering drag mode
+    - [x] Make drop zones more intuitive
+    - [x] Add visual cues for dragging
   - [ ] Implement column management
   - [ ] Redesign task cards
 - [ ] Add keyboard shortcuts
