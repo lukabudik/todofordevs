@@ -5,7 +5,7 @@ import { TaskOptions } from "@/components/tasks/task-options";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Settings, Edit, Check, X } from "lucide-react";
-import { TaskDetailDialog } from "@/components/tasks/task-detail-dialog";
+import { TaskDetailPanel } from "@/components/tasks/task-detail-panel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,8 +55,8 @@ export function EnhancedTaskList({
     updatedAt: true,
   });
 
-  // State for task detail dialog
-  const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  // State for task detail panel
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   // State for inline editing
   const [editingTask, setEditingTask] = useState<string | null>(null);
@@ -249,7 +249,12 @@ export function EnhancedTaskList({
         {tasks.map((task) => (
           <div
             key={task.id}
-            className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-accent/50"
+            className="grid grid-cols-12 gap-2 px-4 py-3 hover:bg-accent/50 cursor-pointer"
+            onClick={() => {
+              if (editingTask !== task.id) {
+                setSelectedTaskId(task.id);
+              }
+            }}
           >
             {/* ID column */}
             {visibleColumns.id && (
@@ -275,13 +280,7 @@ export function EnhancedTaskList({
                   autoFocus
                 />
               ) : (
-                <Button
-                  variant="ghost"
-                  className="h-auto justify-start p-0 font-medium hover:bg-transparent hover:underline"
-                  onClick={() => setSelectedTask(task.id)}
-                >
-                  {task.title}
-                </Button>
+                <span className="font-medium">{task.title}</span>
               )}
             </div>
 
@@ -387,10 +386,7 @@ export function EnhancedTaskList({
               <div className="col-span-2 flex items-center">
                 {task.assignee || task.assigneeId ? (
                   <div className="flex items-center gap-2">
-                    <div
-                      className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
-                      title={task.assignee?.name || "Assigned user"}
-                    >
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                       {task.assignee?.image ? (
                         <img
                           src={task.assignee.image}
@@ -470,35 +466,20 @@ export function EnhancedTaskList({
                 </>
               )}
             </div>
-
-            {/* Task Detail Dialog */}
-            <TaskDetailDialog
-              task={task}
-              projectId={projectId}
-              open={selectedTask === task.id}
-              onOpenChange={(open) => {
-                if (!open) setSelectedTask(null);
-              }}
-              onDelete={async (taskId) => {
-                try {
-                  const response = await fetch(`/api/tasks/${taskId}`, {
-                    method: "DELETE",
-                  });
-
-                  if (!response.ok) {
-                    throw new Error("Failed to delete task");
-                  }
-
-                  // Refresh the task list
-                  window.location.reload();
-                } catch (error) {
-                  console.error("Error deleting task:", error);
-                }
-              }}
-            />
           </div>
         ))}
       </div>
+
+      {/* Task Detail Panel */}
+      <TaskDetailPanel
+        taskId={selectedTaskId}
+        projectId={projectId}
+        onClose={() => setSelectedTaskId(null)}
+        onTaskUpdate={() => {
+          // Refresh the task list
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

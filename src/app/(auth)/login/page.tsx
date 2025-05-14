@@ -1,17 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Github } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Github, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Check for verification success message
+    const verificationSuccess = searchParams.get("verificationSuccess");
+    if (verificationSuccess === "true") {
+      setSuccessMessage(
+        "Your email has been verified successfully. You can now log in."
+      );
+    }
+
+    // Check for registration success message
+    const registrationSuccess = searchParams.get("registrationSuccess");
+    if (registrationSuccess === "true") {
+      setSuccessMessage(
+        "Registration successful! Please check your email to verify your account before logging in."
+      );
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,8 +71,16 @@ export default function LoginPage() {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              {error}
+            <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950 dark:text-green-400">
+              <Mail className="h-4 w-4" />
+              <span>{successMessage}</span>
             </div>
           )}
 
@@ -75,9 +103,17 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 name="password"

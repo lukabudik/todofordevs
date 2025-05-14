@@ -558,7 +558,7 @@ This document outlines the detailed development plan for the TodoForDevs MVP, or
 
 This phase focuses on transforming the application to be truly developer-focused, with an IDE-inspired interface, keyboard-driven workflows, and features that make it feel familiar and intuitive to developers.
 
-### Task 8.6: Task Detail View Implementation
+### Task 8.6: Task Detail View Implementation (Superseded by Task 8.7)
 
 - [x] **8.6.1: Create Task Detail Dialog Component**
 
@@ -573,6 +573,43 @@ This phase focuses on transforming the application to be truly developer-focused
   - Remove description preview from the task list
   - Ensure proper state management for opening/closing the detail view
   - Connect the detail view to task update and delete APIs
+
+### Task 8.7: Notion-Inspired Task Interaction Model
+
+- [x] **8.7.1: Create Slide-in Task Detail Panel**
+
+  - Implement a slide-in panel from the right side of the screen
+  - Design a comprehensive layout with clear sections for metadata and description
+  - Ensure the panel has ample space for the full task description
+  - Add smooth animations for opening/closing the panel
+  - Support URL-based navigation to specific tasks
+
+- [x] **8.7.2: Implement Inline Editing in Detail Panel**
+
+  - Make task properties directly editable within the panel
+  - Add edit mode for the description using the EnhancedMarkdownEditor
+  - Implement save/cancel functionality for edits
+  - Ensure proper validation and error handling
+
+- [x] **8.7.3: Make Entire Task Row/Card Clickable**
+
+  - Update EnhancedTaskList to make the entire row clickable
+  - Update KanbanTask to make the entire card clickable
+  - Add clear visual indicators for clickable areas
+  - Remove inline editing from the task list view
+
+- [ ] **8.7.4: Streamline Task Editing Workflow**
+
+  - Consolidate editing into the task detail panel
+  - Simplify TaskOptions to remove redundant edit functionality
+  - Update TaskFormDialog to use the same panel interface for new tasks
+  - Ensure consistent placement of action buttons
+
+- [ ] **8.7.5: Implement URL-Based Navigation**
+  - Update routing to include task IDs in the URL
+  - Handle direct navigation to task URLs
+  - Maintain browser history for back/forward navigation
+  - Support sharing links to specific tasks
 
 ### Task 8.1: Core Navigation & Layout Redesign
 
@@ -688,29 +725,62 @@ This phase focuses on transforming the application to be truly developer-focused
   - Implement Escape key to cancel/close modals
   - Add tab order hints for complex forms
 
-### Task 8.4: Email Integration & Notifications
+### Task 8.4: Email Integration & Notifications with Resend
 
-- [ ] **8.4.1: Select and Integrate Email Service**
+- [x] **8.4.1: Set Up Resend Email Service**
 
-  - Research and select an email service (Resend, SendGrid, or Nodemailer)
-  - Install the necessary packages
-  - Set up environment variables for API keys
-  - Create utility functions for sending emails
+  - Install Resend package: `pnpm install resend`
+  - Add Resend API key to environment variables
+  - Create a utility service for email operations
+  - Implement base email sending functionality
+  - Set up proper error handling and logging
 
-- [ ] **8.4.2: Implement Collaborator Invitation Emails**
+- [x] **8.4.2: Create Email Templates (Partially Completed)**
 
-  - Create an email template for project invitations
-  - Send emails when users are invited to collaborate on a project
-  - Include a direct link to the project in the email
-  - Add proper error handling for email sending failures
+  - ✅ Create a base email layout component with TodoForDevs branding
+  - Implement the following email templates:
+    - ✅ Email verification template
+    - Password reset template (In progress)
+    - Project invitation template
+    - Task assignment notification template
+    - Due date reminder template
+  - ✅ Ensure all templates are responsive and well-designed
+  - ✅ Add proper text alternatives for email clients that don't support HTML
 
-- [ ] **8.4.3: Add Email Notification Settings**
-  - Create user preferences for email notifications
-  - Allow toggling notifications for:
-    - Task assignments
-    - Due date reminders
-    - Mentions in comments (future feature)
-  - Store preferences in the user profile
+- [x] **8.4.3: Implement Email Verification**
+
+  - ✅ Update the user registration process to require email verification
+  - ✅ Generate a secure verification token and store it in the database
+  - ✅ Send verification email with a link containing the token
+  - ✅ Create an API endpoint to verify the email token
+  - ✅ Update the UI to show verification status and resend option
+  - ✅ Restrict certain actions until email is verified
+
+- [x] **8.4.4: Implement Password Reset**
+
+  - ✅ Create a "Forgot Password" page and form
+  - ✅ Generate a secure reset token with expiration
+  - ✅ Send password reset email with a link containing the token
+  - ✅ Create a password reset page to handle the token and set a new password
+  - ✅ Add proper validation and error handling
+
+- [x] **8.4.5: Implement Collaborator Invitation Emails**
+
+  - Update the project collaboration system to send invitation emails
+  - Include project details and a direct link to accept the invitation
+  - Add tracking for invitation status (sent, opened, accepted)
+  - Implement reminder emails for pending invitations
+  - Add option to resend invitation emails
+
+### Task 8.8: Enhance Collaboration System
+
+- [ ] **8.8.1: Implement Invitations for Non-Existent Users**
+  - Create a PendingInvitation model in the database schema
+  - Modify the collaborator invitation API to handle non-existent users
+  - Create API endpoints for managing pending invitations
+  - Update the registration flow to handle pending invitations
+  - Update the UI to show and manage pending invitations
+  - Enhance email templates with registration instructions for new users
 
 ### Task 8.5: Developer-Focused UI Improvements
 

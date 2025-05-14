@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, UserPlus, X } from "lucide-react";
+import { Users, UserPlus, X, RefreshCw, Clock } from "lucide-react";
 
 interface Collaborator {
   id: string;
@@ -22,6 +22,15 @@ interface Collaborator {
   email: string | null;
   image: string | null;
   role: string;
+}
+
+interface PendingInvitation {
+  id: string;
+  email: string;
+  createdAt: Date;
+  expiresAt: Date;
+  inviterId: string;
+  inviterName: string;
 }
 
 interface ProjectCollaboratorsProps {
@@ -38,6 +47,9 @@ export function ProjectCollaborators({
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<
+    PendingInvitation[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -67,6 +79,13 @@ export function ProjectCollaborators({
 
       const data = await response.json();
       setCollaborators(data.members || []);
+
+      // Set pending invitations if available (only for project owners)
+      if (isOwner && data.pendingInvitations) {
+        setPendingInvitations(data.pendingInvitations);
+      } else {
+        setPendingInvitations([]);
+      }
     } catch (err) {
       console.error("Error fetching collaborators:", err);
       setError("Failed to load collaborators. Please try again.");
@@ -150,6 +169,72 @@ export function ProjectCollaborators({
     }
   };
 
+  // Resend a pending invitation
+  const handleResendInvitation = async (invitationId: string) => {
+    if (!isOwner) return;
+
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `/api/projects/${projectId}/invitations/${invitationId}/resend`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to resend invitation");
+      }
+
+      setSuccess("Invitation resent successfully");
+      fetchCollaborators(); // Refresh the invitations list
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred while resending the invitation");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Cancel a pending invitation
+  const handleCancelInvitation = async (invitationId: string) => {
+    if (!isOwner) return;
+
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch(
+        `/api/projects/${projectId}/invitations/${invitationId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to cancel invitation");
+      }
+
+      setSuccess("Invitation cancelled successfully");
+      fetchCollaborators(); // Refresh the invitations list
+      router.refresh(); // Refresh the page to update any UI that depends on invitations
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred while cancelling the invitation");
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -191,56 +276,121 @@ export function ProjectCollaborators({
         {error && <p className="text-sm text-destructive">{error}</p>}
         {success && <p className="text-sm text-green-600">{success}</p>}
 
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium">Team Members</h4>
-          {isLoadingCollaborators ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          ) : collaborators.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No collaborators yet. Invite team members to collaborate.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {collaborators.map((collaborator) => (
-                <div
-                  key={collaborator.id}
-                  className="flex items-center justify-between rounded-md border p-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                      {collaborator.name
-                        ? collaborator.name.charAt(0).toUpperCase()
-                        : "U"}
+        <div className="space-y-6">
+          {/* Team Members Section */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Team Members</h4>
+            {isLoadingCollaborators ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : collaborators.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No collaborators yet. Invite team members to collaborate.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {collaborators.map((collaborator) => (
+                  <div
+                    key={collaborator.id}
+                    className="flex items-center justify-between rounded-md border p-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                        {collaborator.name
+                          ? collaborator.name.charAt(0).toUpperCase()
+                          : "U"}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {collaborator.name || "Unknown"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {collaborator.email}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {collaborator.name || "Unknown"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {collaborator.email}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-muted px-2 py-1 rounded">
+                        {collaborator.role}
+                      </span>
+                      {isOwner && collaborator.role !== "OWNER" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive"
+                          onClick={() =>
+                            handleRemoveCollaborator(collaborator.id)
+                          }
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-muted px-2 py-1 rounded">
-                      {collaborator.role}
-                    </span>
-                    {isOwner && collaborator.role !== "OWNER" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() =>
-                          handleRemoveCollaborator(collaborator.id)
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Remove</span>
-                      </Button>
-                    )}
-                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pending Invitations Section - Only shown to project owners */}
+          {isOwner && (
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">Pending Invitations</h4>
+              {isLoadingCollaborators ? (
+                <p className="text-sm text-muted-foreground">Loading...</p>
+              ) : pendingInvitations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No pending invitations.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {pendingInvitations.map((invitation) => (
+                    <div
+                      key={invitation.id}
+                      className="flex items-center justify-between rounded-md border border-dashed p-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                          <Clock className="h-4 w-4 text-blue-500 dark:text-blue-300" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {invitation.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Invited{" "}
+                            {new Date(
+                              invitation.createdAt
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-blue-500"
+                          onClick={() => handleResendInvitation(invitation.id)}
+                          title="Resend invitation"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                          <span className="sr-only">Resend</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive"
+                          onClick={() => handleCancelInvitation(invitation.id)}
+                          title="Cancel invitation"
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Cancel</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>

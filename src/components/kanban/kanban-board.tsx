@@ -19,6 +19,7 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./kanban-column";
 import { Button } from "@/components/ui/button";
 import { ListFilter, LayoutGrid, List } from "lucide-react";
+import { TaskDetailPanel } from "@/components/tasks/task-detail-panel";
 
 interface Task {
   id: string;
@@ -56,6 +57,7 @@ export function KanbanBoard({
 }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   // Define the statuses for the columns
   const statuses = ["To Do", "In Progress", "Blocked", "Done"];
@@ -168,6 +170,7 @@ export function KanbanBoard({
                 status={status}
                 tasks={tasksByStatus[status] || []}
                 projectId={projectId}
+                onTaskClick={setSelectedTaskId}
               />
             ))}
           </div>
@@ -208,6 +211,17 @@ export function KanbanBoard({
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Task Detail Panel */}
+      <TaskDetailPanel
+        taskId={selectedTaskId}
+        projectId={projectId}
+        onClose={() => setSelectedTaskId(null)}
+        onTaskUpdate={() => {
+          // Refresh the task list
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

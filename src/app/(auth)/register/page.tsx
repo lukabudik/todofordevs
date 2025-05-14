@@ -1,51 +1,186 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Github } from "lucide-react";
+import { Github, AlertCircle, Mail } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [invitationToken, setInvitationToken] = useState<string | null>(null);
+  const [invitationInfo, setInvitationInfo] = useState<{
+    projectName: string;
+    inviterName: string;
+  } | null>(null);
+
+  // Check for invitation token in URL
+  useEffect(() => {
+    const token = searchParams?.get("invitation");
+    if (token) {
+      setInvitationToken(token);
+      fetchInvitationDetails(token);
+    }
+  }, [searchParams]);
+
+  // Fetch invitation details
+  const fetchInvitationDetails = async (token: string) => {
+    console.log(`[REGISTER] Fetching invitation details for token`);
+    try {
+      // Add a timestamp to prevent caching
+      const url = `/api/invitations/verify?token=${token}&_t=${Date.now()}`;
+      console.log(`[REGISTER] Making request to: ${url}`);
+
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+      });
+
+      console.log(`[REGISTER] Response status: ${response.status}`);
+
+      // Check if the response is JSON
+      const contentType = response.headers.get("content-type");
+      console.log(`[REGISTER] Response content-type: ${contentType}`);
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error("[REGISTER] Non-JSON response received:", responseText);
+        throw new Error("Invalid response from server");
+      }
+
+      // Parse the JSON response
+      let data;
+      try {
+        data = await response.json();
+        console.log(`[REGISTER] Response data:`, data);
+      } catch (jsonError) {
+        console.error("[REGISTER] JSON parsing error:", jsonError);
+        throw new Error("Failed to parse server response");
+      }
+
+      if (!response.ok) {
+        console.error("[REGISTER] Error response:", data);
+        throw new Error(data.message || "Invalid or expired invitation");
+      }
+
+      // Set email from invitation
+      if (data.email) {
+        console.log(`[REGISTER] Setting email from invitation: ${data.email}`);
+        setEmail(data.email);
+      }
+
+      // Set invitation info for display
+      if (data.projectName && data.inviterName) {
+        console.log(
+          `[REGISTER] Setting invitation info: Project=${data.projectName}, Inviter=${data.inviterName}`
+        );
+        setInvitationInfo({
+          projectName: data.projectName,
+          inviterName: data.inviterName,
+        });
+      }
+    } catch (err) {
+      console.error("[REGISTER] Error fetching invitation details:", err);
+      setError("Invalid or expired invitation link");
+      // Clear invitation token if it's invalid
+      setInvitationToken(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    console.log("[REGISTER] Starting registration process");
 
     if (password !== confirmPassword) {
+      console.log("[REGISTER] Validation error: Passwords do not match");
       setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
     try {
+      // Prepare registration data
+      const registrationData: any = {
+        name,
+        email,
+        password,
+      };
+
+      // Add invitation token if available
+      if (invitationToken) {
+        console.log(
+          "[REGISTER] Including invitation token in registration data"
+        );
+        registrationData.invitationToken = invitationToken;
+      }
+
+      console.log(`[REGISTER] Submitting registration for email: ${email}`);
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
         },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+        body: JSON.stringify(registrationData),
       });
 
+      console.log(
+        `[REGISTER] Registration response status: ${response.status}`
+      );
+
+      // Check if the response is JSON
+      const contentType = response.headers.get("content-type");
+      console.log(
+        `[REGISTER] Registration response content-type: ${contentType}`
+      );
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error(
+          "[REGISTER] Non-JSON registration response:",
+          responseText
+        );
+        throw new Error("Invalid response from server");
+      }
+
+      // Parse the JSON response
+      let data;
+      try {
+        data = await response.json();
+        console.log(`[REGISTER] Registration response data:`, data);
+      } catch (jsonError) {
+        console.error(
+          "[REGISTER] JSON parsing error in registration response:",
+          jsonError
+        );
+        throw new Error("Failed to parse server response");
+      }
+
       if (!response.ok) {
-        const data = await response.json();
+        console.error("[REGISTER] Registration error response:", data);
         throw new Error(data.message || "Registration failed");
       }
 
-      router.push("/login?registered=true");
+      // If registration was successful, redirect to login page
+      console.log(
+        "[REGISTER] Registration successful, redirecting to login page"
+      );
+      router.push("/login?registrationSuccess=true");
     } catch (err) {
+      console.error("[REGISTER] Registration error:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -60,15 +195,41 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Create an Account</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sign up to start using TodoForDevs
-          </p>
+          {invitationInfo ? (
+            <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-900 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <Mail className="h-5 w-5 text-blue-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    Project Invitation
+                  </h3>
+                  <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                    <p>
+                      <strong>{invitationInfo.inviterName}</strong> has invited
+                      you to collaborate on the project{" "}
+                      <strong>"{invitationInfo.projectName}"</strong>.
+                    </p>
+                    <p className="mt-1">
+                      Complete registration to join the project.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sign up to start using TodoForDevs
+            </p>
+          )}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              {error}
+            <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
             </div>
           )}
 

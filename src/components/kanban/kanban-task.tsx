@@ -28,9 +28,10 @@ interface Task {
 interface KanbanTaskProps {
   task: Task;
   projectId: string;
+  onTaskClick: (taskId: string) => void;
 }
 
-export function KanbanTask({ task, projectId }: KanbanTaskProps) {
+export function KanbanTask({ task, projectId, onTaskClick }: KanbanTaskProps) {
   const {
     attributes,
     listeners,
@@ -83,7 +84,7 @@ export function KanbanTask({ task, projectId }: KanbanTaskProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`mb-2 flex flex-col rounded-md border bg-card p-3 shadow-sm transition-all duration-200 select-none ${
+      className={`mb-2 flex flex-col rounded-md border bg-card p-3 shadow-sm transition-all duration-200 select-none cursor-pointer ${
         isDragging
           ? "shadow-none border-dashed"
           : "hover:bg-accent/50 hover:shadow-md hover:-translate-y-0.5"
@@ -91,6 +92,15 @@ export function KanbanTask({ task, projectId }: KanbanTaskProps) {
       tabIndex={0}
       aria-roledescription="Draggable task"
       data-task-id={task.id}
+      onClick={(e) => {
+        // Prevent click when dragging
+        if (!isDragging) {
+          // Don't trigger if clicking on the task options
+          if (!(e.target as HTMLElement).closest(".task-options")) {
+            onTaskClick(task.id);
+          }
+        }
+      }}
     >
       <div className="mb-2 flex items-start justify-between group">
         <h3 className="text-base font-medium">{task.title}</h3>
@@ -104,7 +114,9 @@ export function KanbanTask({ task, projectId }: KanbanTaskProps) {
             />
             <span className="text-xs font-medium">{task.priority}</span>
           </div>
-          <TaskOptions task={{ ...task, projectId }} />
+          <div className="task-options">
+            <TaskOptions task={{ ...task, projectId }} />
+          </div>
         </div>
       </div>
 

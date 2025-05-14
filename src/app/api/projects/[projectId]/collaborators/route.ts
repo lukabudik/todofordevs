@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import {
+  sendProjectInvitationEmail,
+  sendPendingInvitationEmail,
+} from "@/lib/email";
+import crypto from "crypto";
+
+// Helper function to generate a secure token for invitations
+function generateInvitationToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+// Helper function to calculate expiration date (default: 7 days from now)
+function calculateExpirationDate(days: number = 7): Date {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date;
+}
 
 // Helper function to check if user is the project owner
 async function isProjectOwner(projectId: string, userId: string) {
@@ -112,7 +129,49 @@ export async function GET(
       ...collaborators,
     ];
 
-    return NextResponse.json({ members });
+    // Get pending invitations if user is the owner
+    let pendingInvitations: Array<{
+      id: string;
+      email: string;
+      createdAt: Date;
+      expiresAt: Date;
+      inviterId: string;
+      inviterName: string;
+    }> = [];
+    if (isOwner) {
+      const dbInvitations = await prisma.pendingInvitation.findMany({
+        where: {
+          projectId,
+          expiresAt: {
+            gt: new Date(), // Only include non-expired invitations
+          },
+        },
+        include: {
+          inviter: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      // Format pending invitations
+      pendingInvitations = dbInvitations.map((invitation) => ({
+        id: invitation.id,
+        email: invitation.email,
+        createdAt: invitation.createdAt,
+        expiresAt: invitation.expiresAt,
+        inviterId: invitation.inviterId,
+        inviterName: invitation.inviter.name || invitation.inviter.email || "",
+      }));
+    }
+
+    return NextResponse.json({ members, pendingInvitations });
   } catch (error) {
     console.error("Error fetching collaborators:", error);
     return NextResponse.json(
@@ -162,8 +221,135 @@ export async function POST(
       },
     });
 
-    if (!userToInvite) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    // Get project details
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, name: true },
+    });
+
+    if (!project) {
+      return NextResponse.json(
+        { message: "Project not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get inviter details
+    const inviter = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true },
+    });
+
+    if (!inviter || !inviter.email) {
+      return NextResponse.json(
+        { message: "Inviter not found or has no email" },
+        { status: 500 }
+      );
+    }
+
+    // Create properly typed objects for the email functions
+    const inviterForEmail = {
+      id: inviter.id,
+      name: inviter.name,
+      email: inviter.email,
+    };
+
+    // If user doesn't exist, create a pending invitation
+    if (!userToInvite || !userToInvite.email) {
+      // Check if there's already a pending invitation for this email and project
+      const existingInvitation = await prisma.pendingInvitation.findUnique({
+        where: {
+          email_projectId: {
+            email: email.trim(),
+            projectId,
+          },
+        },
+      });
+
+      if (existingInvitation) {
+        // If invitation exists but is expired, update it
+        if (existingInvitation.expiresAt < new Date()) {
+          const token = generateInvitationToken();
+          const expiresAt = calculateExpirationDate();
+
+          await prisma.pendingInvitation.update({
+            where: { id: existingInvitation.id },
+            data: {
+              token,
+              expiresAt,
+            },
+          });
+
+          // Send invitation email
+          try {
+            await sendPendingInvitationEmail(
+              inviterForEmail,
+              email.trim(),
+              project,
+              token
+            );
+          } catch (emailError) {
+            console.error("Error sending invitation email:", emailError);
+          }
+
+          return NextResponse.json(
+            {
+              message: "Invitation renewed and sent successfully",
+              isPendingInvitation: true,
+            },
+            { status: 200 }
+          );
+        }
+
+        // If invitation exists and is not expired, just return success
+        return NextResponse.json(
+          {
+            message: "Invitation already sent to this email",
+            isPendingInvitation: true,
+          },
+          { status: 200 }
+        );
+      }
+
+      // Create new pending invitation
+      const token = generateInvitationToken();
+      const expiresAt = calculateExpirationDate();
+
+      const pendingInvitation = await prisma.pendingInvitation.create({
+        data: {
+          email: email.trim(),
+          token,
+          expiresAt,
+          projectId,
+          inviterId: userId,
+        },
+      });
+
+      // Send invitation email
+      try {
+        await sendPendingInvitationEmail(
+          inviterForEmail,
+          email.trim(),
+          project,
+          token
+        );
+      } catch (emailError) {
+        console.error("Error sending invitation email:", emailError);
+        // Continue even if email fails - the invitation is still created
+      }
+
+      return NextResponse.json(
+        {
+          message: "Invitation sent successfully",
+          isPendingInvitation: true,
+          pendingInvitation: {
+            id: pendingInvitation.id,
+            email: pendingInvitation.email,
+            expiresAt: pendingInvitation.expiresAt,
+          },
+        },
+        { status: 201 }
+      );
     }
 
     // Check if user is already the owner
@@ -209,6 +395,27 @@ export async function POST(
         },
       },
     });
+
+    // Send invitation email
+    try {
+      // Make sure userToInvite.email is not null (we've already checked this above)
+      const inviteeEmail = userToInvite.email as string;
+
+      const inviteeForEmail = {
+        id: userToInvite.id,
+        name: userToInvite.name,
+        email: inviteeEmail,
+      };
+
+      await sendProjectInvitationEmail(
+        inviterForEmail,
+        inviteeForEmail,
+        project
+      );
+    } catch (emailError) {
+      console.error("Error sending invitation email:", emailError);
+      // Continue even if email fails - the user is still added as a collaborator
+    }
 
     return NextResponse.json(
       {
