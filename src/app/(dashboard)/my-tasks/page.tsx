@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { TaskOptions } from "@/components/tasks/task-options";
-import { EnhancedFilters } from "@/components/tasks/filters";
+import { TaskFilters } from "@/components/tasks/filters";
 
 interface Task {
   id: string;
@@ -90,7 +90,6 @@ export default function MyTasksPage() {
         setProjectsWithTasks(data.tasksByProject || []);
       } catch (err) {
         setError("Error loading tasks. Please try again later.");
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -236,7 +235,7 @@ export default function MyTasksPage() {
         <h1 className="text-3xl font-bold">My Tasks</h1>
       </div>
 
-      <EnhancedFilters
+      <TaskFilters
         projectId="my-tasks"
         collaborators={[]}
         onFiltersChange={handleFiltersChange}

@@ -173,7 +173,6 @@ export async function GET(
 
     return NextResponse.json({ members, pendingInvitations });
   } catch (error) {
-    console.error("Error fetching collaborators:", error);
     return NextResponse.json(
       { message: "An error occurred while fetching collaborators" },
       { status: 500 }
@@ -289,7 +288,7 @@ export async function POST(
               token
             );
           } catch (emailError) {
-            console.error("Error sending invitation email:", emailError);
+            // Silently handle email errors - invitation is still updated
           }
 
           return NextResponse.json(
@@ -334,8 +333,7 @@ export async function POST(
           token
         );
       } catch (emailError) {
-        console.error("Error sending invitation email:", emailError);
-        // Continue even if email fails - the invitation is still created
+        // Silently handle email errors - invitation is still created
       }
 
       return NextResponse.json(
@@ -413,8 +411,7 @@ export async function POST(
         project
       );
     } catch (emailError) {
-      console.error("Error sending invitation email:", emailError);
-      // Continue even if email fails - the user is still added as a collaborator
+      // Silently handle email errors - the user is still added as a collaborator
     }
 
     return NextResponse.json(
@@ -431,7 +428,6 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error adding collaborator:", error);
     return NextResponse.json(
       { message: "An error occurred while adding the collaborator" },
       { status: 500 }

@@ -31,23 +31,28 @@ export async function GET(req: NextRequest) {
     });
 
     // Group tasks by project
-    const tasksByProject = tasks.reduce((acc, task) => {
-      const projectId = task.projectId;
-      if (!acc[projectId]) {
-        acc[projectId] = {
-          project: task.project,
-          tasks: [],
-        };
-      }
-      acc[projectId].tasks.push(task);
-      return acc;
-    }, {} as Record<string, { project: { id: string; name: string; ownerId: string }; tasks: any[] }>);
+    const tasksByProject = tasks.reduce(
+      (acc, task) => {
+        const projectId = task.projectId;
+        if (!acc[projectId]) {
+          acc[projectId] = {
+            project: task.project,
+            tasks: [],
+          };
+        }
+        acc[projectId].tasks.push(task);
+        return acc;
+      },
+      {} as Record<
+        string,
+        { project: { id: string; name: string; ownerId: string }; tasks: any[] }
+      >
+    );
 
     return NextResponse.json({
       tasksByProject: Object.values(tasksByProject),
     });
   } catch (error) {
-    console.error("Error fetching user tasks:", error);
     return NextResponse.json(
       { message: "Failed to fetch tasks" },
       { status: 500 }

@@ -4,13 +4,13 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ProjectOptions } from "@/components/projects/project-options";
 import { ProjectCollaborators } from "@/components/projects/project-collaborators";
-import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
+import { TaskFormDialog } from "@/components/tasks/dialogs";
 import { TaskOptions } from "@/components/tasks/task-options";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { useSession } from "next-auth/react";
 import { ViewSwitcher } from "@/components/kanban/view-switcher";
 import { KanbanBoard } from "@/components/kanban/kanban-board";
-import { EnhancedTaskList } from "@/components/tasks/enhanced-list";
+import { EnhancedTaskList } from "@/components/tasks/list";
 import { EnhancedFilters } from "@/components/tasks/filters";
 
 interface Project {
@@ -90,7 +90,7 @@ export default function ProjectPage() {
         };
       });
     } catch (err) {
-      console.error("Error updating task:", err);
+      // Silently handle error - could add error state if needed
     }
   };
 
@@ -122,7 +122,6 @@ export default function ProjectPage() {
         }
       } catch (err) {
         setError("Error loading project. Please try again later.");
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -148,7 +147,7 @@ export default function ProjectPage() {
         const data = await response.json();
         setCollaborators(data.members || []);
       } catch (err) {
-        console.error("Error fetching collaborators:", err);
+        // Silently handle error - could add error state if needed
       }
     };
 

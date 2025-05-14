@@ -98,7 +98,6 @@ export async function GET(
 
     return NextResponse.json({ project });
   } catch (error) {
-    console.error("Error fetching project:", error);
     return NextResponse.json(
       { message: "An error occurred while fetching the project" },
       { status: 500 }
@@ -162,7 +161,6 @@ export async function PUT(
       project: updatedProject,
     });
   } catch (error) {
-    console.error("Error updating project:", error);
     return NextResponse.json(
       { message: "An error occurred while updating the project" },
       { status: 500 }
@@ -205,7 +203,6 @@ export async function DELETE(
       message: "Project deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting project:", error);
     return NextResponse.json(
       { message: "An error occurred while deleting the project" },
       { status: 500 }

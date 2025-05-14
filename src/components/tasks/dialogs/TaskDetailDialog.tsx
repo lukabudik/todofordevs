@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
-import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
+import { TaskFormDialog } from "@/components/tasks/dialogs/TaskFormDialog";
 import { formatDistanceToNow } from "date-fns";
 import {
   Calendar,
@@ -108,7 +108,7 @@ export function TaskDetailDialog({
       onOpenChange(false);
       router.refresh();
     } catch (error) {
-      console.error("Error deleting task:", error);
+      // Silently handle error - could add error state if needed
     } finally {
       setIsDeleting(false);
     }

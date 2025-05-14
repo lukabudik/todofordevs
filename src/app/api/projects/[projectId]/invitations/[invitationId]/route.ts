@@ -59,7 +59,6 @@ export async function DELETE(
       message: "Invitation cancelled successfully",
     });
   } catch (error) {
-    console.error("Error cancelling invitation:", error);
     return NextResponse.json(
       { message: "An error occurred while cancelling the invitation" },
       { status: 500 }

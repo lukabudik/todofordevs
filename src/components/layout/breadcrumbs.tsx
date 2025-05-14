@@ -54,7 +54,7 @@ export function Breadcrumbs() {
               });
             }
           } catch (error) {
-            console.error("Error fetching project details:", error);
+            // Silently handle error - could add error state if needed
           } finally {
             setIsLoading(false);
           }

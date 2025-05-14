@@ -53,7 +53,7 @@ interface FilterPreset {
   sortOrder: string;
 }
 
-interface EnhancedFiltersProps {
+interface TaskFiltersProps {
   projectId: string;
   collaborators: Array<{
     id: string;
@@ -73,12 +73,12 @@ interface EnhancedFiltersProps {
   onSortChange: (sortBy: string, sortOrder: string) => void;
 }
 
-export function EnhancedFilters({
+export function TaskFilters({
   projectId,
   collaborators,
   onFiltersChange,
   onSortChange,
-}: EnhancedFiltersProps) {
+}: TaskFiltersProps) {
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -457,16 +457,16 @@ export function EnhancedFilters({
                 {sortBy === "updatedAt"
                   ? "Updated"
                   : sortBy === "createdAt"
-                  ? "Created"
-                  : sortBy === "dueDate"
-                  ? "Due Date"
-                  : sortBy === "priority"
-                  ? "Priority"
-                  : sortBy === "status"
-                  ? "Status"
-                  : sortBy === "title"
-                  ? "Title"
-                  : sortBy}
+                    ? "Created"
+                    : sortBy === "dueDate"
+                      ? "Due Date"
+                      : sortBy === "priority"
+                        ? "Priority"
+                        : sortBy === "status"
+                          ? "Status"
+                          : sortBy === "title"
+                            ? "Title"
+                            : sortBy}
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

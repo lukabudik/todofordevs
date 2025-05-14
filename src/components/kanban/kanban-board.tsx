@@ -19,7 +19,7 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./kanban-column";
 import { Button } from "@/components/ui/button";
 import { ListFilter, LayoutGrid, List } from "lucide-react";
-import { TaskDetailPanel } from "@/components/tasks/task-detail-panel";
+import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 
 interface Task {
   id: string;

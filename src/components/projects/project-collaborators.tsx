@@ -87,7 +87,6 @@ export function ProjectCollaborators({
         setPendingInvitations([]);
       }
     } catch (err) {
-      console.error("Error fetching collaborators:", err);
       setError("Failed to load collaborators. Please try again.");
     } finally {
       setIsLoadingCollaborators(false);

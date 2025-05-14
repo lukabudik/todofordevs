@@ -52,7 +52,7 @@ export function CommandPalette() {
             setProjects(data.projects || []);
           }
         } catch (error) {
-          console.error("Error fetching projects:", error);
+          // Silently handle error - could add error state if needed
         } finally {
           setIsLoading(false);
         }

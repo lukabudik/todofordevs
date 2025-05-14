@@ -26,7 +26,7 @@ interface Project {
   name: string;
 }
 
-export function QuickAddTaskDialog({
+export function QuickAddDialog({
   isOpen,
   onOpenChange,
 }: {
@@ -70,7 +70,6 @@ export function QuickAddTaskDialog({
             setSelectedProjectId(data.projects[0].id);
           }
         } catch (err) {
-          console.error("Error fetching projects:", err);
           setError("Failed to load projects");
         }
       };

@@ -126,7 +126,7 @@ export function TaskDetailPanel({
           throw new Error("Task data not found in response");
         }
       } catch (error) {
-        console.error("Error fetching task:", error);
+        // Silently handle error - could add error state if needed
       } finally {
         setIsLoading(false);
       }
@@ -151,7 +151,7 @@ export function TaskDetailPanel({
         const data = await response.json();
         setCollaborators(data.members || []);
       } catch (error) {
-        console.error("Error fetching collaborators:", error);
+        // Silently handle error - could add error state if needed
       } finally {
         setIsLoadingCollaborators(false);
       }
@@ -178,7 +178,7 @@ export function TaskDetailPanel({
       onTaskUpdate();
       router.refresh();
     } catch (error) {
-      console.error("Error deleting task:", error);
+      // Silently handle error - could add error state if needed
     } finally {
       setIsDeleting(false);
     }
@@ -221,7 +221,7 @@ export function TaskDetailPanel({
       onTaskUpdate();
       router.refresh();
     } catch (error) {
-      console.error("Error updating task:", error);
+      // Silently handle error - could add error state if needed
     } finally {
       setIsLoading(false);
     }
@@ -246,7 +246,7 @@ export function TaskDetailPanel({
       }
       return date.toLocaleDateString();
     } catch (error) {
-      console.error("Error formatting date:", error);
+      // Silently handle error
       return "Invalid date";
     }
   };
@@ -261,7 +261,7 @@ export function TaskDetailPanel({
       }
       return formatDistanceToNow(date, { addSuffix: true });
     } catch (error) {
-      console.error("Error formatting date:", error);
+      // Silently handle error
       return "Unknown date";
     }
   };
@@ -531,7 +531,7 @@ export function TaskDetailPanel({
                             }
                             return date.toISOString().split("T")[0];
                           } catch (error) {
-                            console.error("Error formatting date:", error);
+                            // Silently handle error
                             return "";
                           }
                         })()

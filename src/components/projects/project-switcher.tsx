@@ -64,7 +64,6 @@ export function ProjectSwitcher() {
           setCurrentProject(null);
         }
       } catch (err) {
-        console.error("Error fetching projects:", err);
         setError("Failed to load projects");
       } finally {
         setIsLoading(false);
@@ -214,7 +213,7 @@ export function ProjectSwitcher() {
                 // Navigate to the new project
                 router.push(`/projects/${data.project.id}`);
               } catch (err) {
-                console.error("Error creating project:", err);
+                // Handle error silently - could add error state if needed
               }
             }}
             className="space-y-4 py-4"

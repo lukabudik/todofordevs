@@ -32,11 +32,9 @@ export default function RegisterPage() {
 
   // Fetch invitation details
   const fetchInvitationDetails = async (token: string) => {
-    console.log(`[REGISTER] Fetching invitation details for token`);
     try {
       // Add a timestamp to prevent caching
       const url = `/api/invitations/verify?token=${token}&_t=${Date.now()}`;
-      console.log(`[REGISTER] Making request to: ${url}`);
 
       const response = await fetch(url, {
         headers: {
@@ -45,15 +43,11 @@ export default function RegisterPage() {
         },
       });
 
-      console.log(`[REGISTER] Response status: ${response.status}`);
-
       // Check if the response is JSON
       const contentType = response.headers.get("content-type");
-      console.log(`[REGISTER] Response content-type: ${contentType}`);
 
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text();
-        console.error("[REGISTER] Non-JSON response received:", responseText);
         throw new Error("Invalid response from server");
       }
 
@@ -61,35 +55,27 @@ export default function RegisterPage() {
       let data;
       try {
         data = await response.json();
-        console.log(`[REGISTER] Response data:`, data);
       } catch (jsonError) {
-        console.error("[REGISTER] JSON parsing error:", jsonError);
         throw new Error("Failed to parse server response");
       }
 
       if (!response.ok) {
-        console.error("[REGISTER] Error response:", data);
         throw new Error(data.message || "Invalid or expired invitation");
       }
 
       // Set email from invitation
       if (data.email) {
-        console.log(`[REGISTER] Setting email from invitation: ${data.email}`);
         setEmail(data.email);
       }
 
       // Set invitation info for display
       if (data.projectName && data.inviterName) {
-        console.log(
-          `[REGISTER] Setting invitation info: Project=${data.projectName}, Inviter=${data.inviterName}`
-        );
         setInvitationInfo({
           projectName: data.projectName,
           inviterName: data.inviterName,
         });
       }
     } catch (err) {
-      console.error("[REGISTER] Error fetching invitation details:", err);
       setError("Invalid or expired invitation link");
       // Clear invitation token if it's invalid
       setInvitationToken(null);
@@ -100,10 +86,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    console.log("[REGISTER] Starting registration process");
 
     if (password !== confirmPassword) {
-      console.log("[REGISTER] Validation error: Passwords do not match");
       setError("Passwords do not match");
       setIsLoading(false);
       return;
@@ -119,13 +103,8 @@ export default function RegisterPage() {
 
       // Add invitation token if available
       if (invitationToken) {
-        console.log(
-          "[REGISTER] Including invitation token in registration data"
-        );
         registrationData.invitationToken = invitationToken;
       }
-
-      console.log(`[REGISTER] Submitting registration for email: ${email}`);
 
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -137,22 +116,11 @@ export default function RegisterPage() {
         body: JSON.stringify(registrationData),
       });
 
-      console.log(
-        `[REGISTER] Registration response status: ${response.status}`
-      );
-
       // Check if the response is JSON
       const contentType = response.headers.get("content-type");
-      console.log(
-        `[REGISTER] Registration response content-type: ${contentType}`
-      );
 
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text();
-        console.error(
-          "[REGISTER] Non-JSON registration response:",
-          responseText
-        );
         throw new Error("Invalid response from server");
       }
 
@@ -160,27 +128,17 @@ export default function RegisterPage() {
       let data;
       try {
         data = await response.json();
-        console.log(`[REGISTER] Registration response data:`, data);
       } catch (jsonError) {
-        console.error(
-          "[REGISTER] JSON parsing error in registration response:",
-          jsonError
-        );
         throw new Error("Failed to parse server response");
       }
 
       if (!response.ok) {
-        console.error("[REGISTER] Registration error response:", data);
         throw new Error(data.message || "Registration failed");
       }
 
       // If registration was successful, redirect to login page
-      console.log(
-        "[REGISTER] Registration successful, redirecting to login page"
-      );
       router.push("/login?registrationSuccess=true");
     } catch (err) {
-      console.error("[REGISTER] Registration error:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {

@@ -14,7 +14,7 @@ import {
 import { User, LogOut, Plus, CheckSquare } from "lucide-react";
 import { ProjectSwitcher } from "@/components/projects/project-switcher";
 import { Button } from "@/components/ui/button";
-import { QuickAddTaskDialog } from "@/components/tasks/quick-add-task-dialog";
+import { QuickAddDialog } from "@/components/tasks/dialogs";
 import { CommandPalette } from "@/components/command/command-palette";
 
 export function Navbar() {
@@ -91,7 +91,7 @@ export function Navbar() {
                   <span className="sr-only md:not-sr-only">New Task</span>
                 </Button>
 
-                <QuickAddTaskDialog
+                <QuickAddDialog
                   isOpen={isQuickAddOpen}
                   onOpenChange={setIsQuickAddOpen}
                 />

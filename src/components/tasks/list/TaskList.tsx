@@ -5,7 +5,7 @@ import { TaskOptions } from "@/components/tasks/task-options";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Settings, Edit, Check, X } from "lucide-react";
-import { TaskDetailPanel } from "@/components/tasks/task-detail-panel";
+import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,17 +33,13 @@ interface Task {
   } | null;
 }
 
-interface EnhancedTaskListProps {
+interface TaskListProps {
   tasks: Task[];
   projectId: string;
   onTaskUpdate: (taskId: string, data: Partial<Task>) => Promise<void>;
 }
 
-export function EnhancedTaskList({
-  tasks,
-  projectId,
-  onTaskUpdate,
-}: EnhancedTaskListProps) {
+export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
   // State for visible columns
   const [visibleColumns, setVisibleColumns] = useState({
     id: true,
@@ -367,8 +363,8 @@ export function EnhancedTaskList({
                             .toISOString()
                             .split("T")[0]
                         : task.dueDate
-                        ? new Date(task.dueDate).toISOString().split("T")[0]
-                        : ""
+                          ? new Date(task.dueDate).toISOString().split("T")[0]
+                          : ""
                     }
                     onChange={(e) =>
                       handleEditChange("dueDate", e.target.value)

@@ -89,7 +89,6 @@ export async function DELETE(
       message: "Collaborator removed successfully",
     });
   } catch (error) {
-    console.error("Error removing collaborator:", error);
     return NextResponse.json(
       { message: "An error occurred while removing the collaborator" },
       { status: 500 }

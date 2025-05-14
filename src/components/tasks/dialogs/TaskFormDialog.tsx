@@ -93,7 +93,7 @@ export function TaskFormDialog({
       const data = await response.json();
       setCollaborators(data.members || []);
     } catch (err) {
-      console.error("Error fetching collaborators:", err);
+      // Silently handle error - could add error state if needed
     } finally {
       setIsLoadingCollaborators(false);
     }
@@ -178,8 +178,8 @@ export function TaskFormDialog({
         ? "Creating..."
         : "Create Task"
       : isLoading
-      ? "Saving..."
-      : "Save Changes";
+        ? "Saving..."
+        : "Save Changes";
 
   const defaultTrigger =
     mode === "create" ? (

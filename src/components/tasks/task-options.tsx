@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
+import { TaskFormDialog } from "@/components/tasks/dialogs/TaskFormDialog";
 
 interface TaskOptionsProps {
   task: {

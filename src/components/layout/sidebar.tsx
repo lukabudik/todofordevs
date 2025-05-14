@@ -27,7 +27,6 @@ export function Sidebar() {
         const data = await response.json();
         setProjects(data.projects);
       } catch (err) {
-        console.error("Error fetching projects:", err);
         setError("Failed to load projects");
       } finally {
         setIsLoading(false);

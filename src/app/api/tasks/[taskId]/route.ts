@@ -113,7 +113,6 @@ export async function GET(
 
     return NextResponse.json({ task });
   } catch (error) {
-    console.error("Error fetching task:", error);
     return NextResponse.json(
       { message: "An error occurred while fetching the task" },
       { status: 500 }
@@ -245,7 +244,6 @@ export async function PUT(
       task: updatedTask,
     });
   } catch (error) {
-    console.error("Error updating task:", error);
     return NextResponse.json(
       { message: "An error occurred while updating the task" },
       { status: 500 }
@@ -285,7 +283,6 @@ export async function DELETE(
       message: "Task deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting task:", error);
     return NextResponse.json(
       { message: "An error occurred while deleting the task" },
       { status: 500 }

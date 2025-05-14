@@ -1,1 +1,2 @@
-export * from "./enhanced-filters";
+export * from "./TaskFilters";
+export { TaskFilters as EnhancedFilters } from "./TaskFilters";

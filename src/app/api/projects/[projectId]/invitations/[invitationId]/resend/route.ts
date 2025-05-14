@@ -110,8 +110,7 @@ export async function POST(
         token
       );
     } catch (emailError) {
-      console.error("Error sending invitation email:", emailError);
-      // Continue even if email fails - the invitation is still updated
+      // Silently handle email errors - the invitation is still updated
     }
 
     return NextResponse.json({
@@ -123,7 +122,6 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error("Error resending invitation:", error);
     return NextResponse.json(
       { message: "An error occurred while resending the invitation" },
       { status: 500 }
