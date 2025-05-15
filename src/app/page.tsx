@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
-import { MainLayout } from "@/components/layout/main-layout";
+import { LandingLayout } from "@/components/layout/landing-layout";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -52,20 +52,20 @@ export default function Home() {
   // If still loading or authenticated, show a minimal loading state
   if (status === "loading" || isAuthenticated) {
     return (
-      <MainLayout>
+      <LandingLayout>
         <div className="flex h-[80vh] items-center justify-center">
           <div className="text-center">
             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
             <p className="text-muted-foreground">Loading your workspace...</p>
           </div>
         </div>
-      </MainLayout>
+      </LandingLayout>
     );
   }
 
   // Marketing page for non-authenticated users
   return (
-    <MainLayout>
+    <LandingLayout>
       {/* Hero Section */}
       <section className="relative py-16 overflow-hidden">
         {/* Code pattern background */}
@@ -423,6 +423,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </MainLayout>
+    </LandingLayout>
   );
 }

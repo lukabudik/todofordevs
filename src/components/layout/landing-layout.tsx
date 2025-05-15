@@ -3,18 +3,16 @@ import { ReactNode } from "react";
 import { Breadcrumbs } from "./breadcrumbs";
 import { Navbar } from "./navbar";
 
-interface MainLayoutProps {
+interface LandingLayoutProps {
   children: ReactNode;
 }
 
-export function MainLayout({ children }: MainLayoutProps) {
+export function LandingLayout({ children }: LandingLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <Breadcrumbs />
-      <main className="flex-1 overflow-auto container mx-auto px-4 md:px-6">
-        {children}
-      </main>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }
