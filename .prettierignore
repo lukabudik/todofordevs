@@ -1,0 +1,26 @@
+# Build outputs
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Node modules
+node_modules/
+
+# Generated code
+src/generated/
+prisma/generated/
+
+# Lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Other
+.DS_Store
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
