@@ -18,7 +18,7 @@ export function TaskDetailPanel({
   initialEditMode = false,
 }: TaskDetailPanelProps) {
   // Handle task update
-  const handleTaskUpdate = async (taskId: string, data: any) => {
+  const handleTaskUpdate = async () => {
     // Call the parent's onTaskUpdate to refresh the task list
     onTaskUpdate();
   };

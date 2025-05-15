@@ -37,7 +37,10 @@ async function isProjectOwner(projectId: string, userId: string) {
 }
 
 // GET /api/projects/[projectId] - Get a single project by ID
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -94,7 +97,7 @@ export async function GET(request: NextRequest, context: any) {
     }
 
     return NextResponse.json({ project });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching the project" },
       { status: 500 }
@@ -103,7 +106,10 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 // PUT /api/projects/[projectId] - Update a project
-export async function PUT(request: NextRequest, context: any) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -154,7 +160,7 @@ export async function PUT(request: NextRequest, context: any) {
       message: "Project updated successfully",
       project: updatedProject,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while updating the project" },
       { status: 500 }
@@ -163,7 +169,10 @@ export async function PUT(request: NextRequest, context: any) {
 }
 
 // DELETE /api/projects/[projectId] - Delete a project
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -193,7 +202,7 @@ export async function DELETE(request: NextRequest, context: any) {
     return NextResponse.json({
       message: "Project deleted successfully",
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while deleting the project" },
       { status: 500 }

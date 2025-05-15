@@ -4,7 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // DELETE /api/projects/[projectId]/invitations/[invitationId] - Cancel a pending invitation
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { projectId: string; invitationId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -56,7 +59,7 @@ export async function DELETE(request: NextRequest, context: any) {
     return NextResponse.json({
       message: "Invitation cancelled successfully",
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while cancelling the invitation" },
       { status: 500 }

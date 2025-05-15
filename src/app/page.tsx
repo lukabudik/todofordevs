@@ -7,10 +7,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Code,
   Users,
-  Keyboard,
-  Moon,
   Github,
   Zap,
   Braces,
@@ -18,11 +15,10 @@ import {
   Star,
   GitFork,
   ExternalLink,
-  ArrowRight,
 } from "lucide-react";
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const isAuthenticated = status === "authenticated";
 
@@ -42,7 +38,7 @@ export default function Home() {
               router.push("/projects");
             }
           }
-        } catch (error) {
+        } catch {
           // If there's an error, fallback to projects page
           router.push("/projects");
         }

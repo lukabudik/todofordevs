@@ -18,7 +18,10 @@ function calculateExpirationDate(days: number = 7): Date {
 }
 
 // POST /api/projects/[projectId]/invitations/[invitationId]/resend - Resend a pending invitation
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  context: { params: { projectId: string; invitationId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -107,7 +110,7 @@ export async function POST(request: NextRequest, context: any) {
         project,
         token
       );
-    } catch (emailError) {
+    } catch {
       // Silently handle email errors - the invitation is still updated
     }
 
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest, context: any) {
         expiresAt: updatedInvitation.expiresAt,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while resending the invitation" },
       { status: 500 }

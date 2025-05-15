@@ -14,11 +14,8 @@ import {
   DragOverlay,
   defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./kanban-column";
-import { Button } from "@/components/ui/button";
-import { ListFilter, LayoutGrid, List } from "lucide-react";
 import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 
 interface Task {
@@ -44,18 +41,16 @@ interface KanbanBoardProps {
   tasks: Task[];
   projectId: string;
   onTaskUpdate: (taskId: string, data: Partial<Task>) => Promise<void>;
-  onViewChange: (view: "list" | "board") => void;
-  currentView: "list" | "board";
+  onViewChange?: (view: "list" | "board") => void;
+  currentView?: "list" | "board";
 }
 
 export function KanbanBoard({
   tasks,
   projectId,
   onTaskUpdate,
-  onViewChange,
-  currentView,
 }: KanbanBoardProps) {
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [, setActiveId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [openInEditMode, setOpenInEditMode] = useState(false);
@@ -101,8 +96,8 @@ export function KanbanBoard({
 
   // Handle drag start with enhanced feedback
   const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const id = active.id as string;
+    const activeElement = event.active;
+    const id = activeElement.id as string;
     setActiveId(id);
 
     // Find the task being dragged to display in the overlay
@@ -114,14 +109,14 @@ export function KanbanBoard({
 
   // Handle drag over (for moving between columns)
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
+    const { over } = event;
 
     if (!over) {
       setActiveOverId(null);
       return;
     }
 
-    const activeId = active.id as string;
+    const activeId = event.active.id as string;
     const overId = over.id as string;
 
     // Update the active over id for the overlay
@@ -154,6 +149,8 @@ export function KanbanBoard({
     // Add a small delay to allow the drop animation to complete
     // This makes the transition feel more natural
     setTimeout(() => {
+      // Log the active item that was dragged for debugging purposes
+      console.log("Drag ended for item:", active.id);
       // In the future, we could implement task reordering within columns
       // by adding a position/order field to tasks and updating it here
     }, 150);

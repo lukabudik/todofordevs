@@ -28,7 +28,6 @@ import {
   FolderIcon,
   PlusIcon,
   Settings,
-  Clock,
   CheckIcon,
   FolderOpen,
   Home,
@@ -76,7 +75,7 @@ export function ProjectSwitcher() {
         } else {
           setCurrentProject(null);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load projects");
       } finally {
         setIsLoading(false);
@@ -297,7 +296,7 @@ export function ProjectSwitcher() {
 
                 // Navigate to the new project
                 router.push(`/projects/${data.project.id}`);
-              } catch (err) {
+              } catch {
                 // Handle error silently - could add error state if needed
               }
             }}

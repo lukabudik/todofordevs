@@ -48,7 +48,7 @@ export async function sendEmail({
   tags?: { name: string; value: string }[];
   type: string;
   userId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }) {
   try {
     // Validate required fields
@@ -119,14 +119,20 @@ export async function sendEmail({
  * @param userId Optional user ID who triggered the email
  * @param metadata Optional additional metadata
  */
+type EmailLogResult = {
+  success: boolean;
+  error?: Error | { [key: string]: unknown };
+  data?: unknown;
+};
+
 export async function logEmailActivity(
   type: string,
   from: string,
   to: string | string[],
   subject: string,
-  result: { success: boolean; error?: any; data?: any },
+  result: EmailLogResult,
   userId?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ) {
   const recipient = Array.isArray(to) ? to.join(", ") : to;
   const status = result.success ? "SUCCESS" : "FAILED";
@@ -151,8 +157,14 @@ export async function logEmailActivity(
         recipient,
         subject,
         status,
-        errorMessage,
-        metadata: metadata || {},
+        errorMessage:
+          typeof errorMessage === "string"
+            ? errorMessage
+            : errorMessage
+              ? JSON.stringify(errorMessage)
+              : null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metadata: (metadata || {}) as any,
         userId,
         createdAt: new Date(),
       },

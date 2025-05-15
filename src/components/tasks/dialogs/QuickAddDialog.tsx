@@ -64,7 +64,7 @@ export function QuickAddDialog({
             // Otherwise, select the first project
             setSelectedProjectId(data.projects[0].id);
           }
-        } catch (err) {
+        } catch {
           setError("Failed to load projects");
         }
       };
@@ -163,7 +163,6 @@ export function QuickAddDialog({
         {/* Task form */}
         {selectedProjectId && (
           <TaskForm
-            projectId={selectedProjectId}
             isLoading={isLoading}
             error={error}
             onSubmit={handleSubmit}

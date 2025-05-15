@@ -43,7 +43,7 @@ export async function GET() {
     });
 
     return NextResponse.json({ projects });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching projects" },
       { status: 500 }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       { message: "Project created successfully", project },
       { status: 201 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while creating the project" },
       { status: 500 }

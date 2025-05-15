@@ -33,7 +33,6 @@ export interface TaskFormValues {
 
 interface TaskFormProps {
   initialValues?: TaskFormValues;
-  projectId: string;
   collaborators?: Collaborator[];
   isLoading?: boolean;
   error?: string;
@@ -47,7 +46,6 @@ interface TaskFormProps {
 
 export function TaskForm({
   initialValues,
-  projectId,
   collaborators = [],
   isLoading = false,
   error = "",

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -17,9 +16,6 @@ import {
   FolderIcon,
   Plus,
   User,
-  Settings,
-  Search,
-  Filter,
   Sun,
   Moon,
   Monitor,
@@ -50,7 +46,7 @@ export function CommandPalette() {
             const data = await response.json();
             setProjects(data.projects || []);
           }
-        } catch (error) {
+        } catch {
           // Silently handle error - could add error state if needed
         } finally {
           setIsLoading(false);

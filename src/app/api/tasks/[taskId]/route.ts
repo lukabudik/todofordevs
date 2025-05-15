@@ -63,7 +63,10 @@ interface TaskUpdateData {
 }
 
 // GET /api/tasks/[taskId] - Get a single task by ID
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { taskId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -109,7 +112,7 @@ export async function GET(request: NextRequest, context: any) {
     }
 
     return NextResponse.json({ task });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching the task" },
       { status: 500 }
@@ -118,7 +121,10 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 // PUT /api/tasks/[taskId] - Update a task
-export async function PUT(request: NextRequest, context: any) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: { taskId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -237,7 +243,7 @@ export async function PUT(request: NextRequest, context: any) {
       message: "Task updated successfully",
       task: updatedTask,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while updating the task" },
       { status: 500 }
@@ -246,7 +252,10 @@ export async function PUT(request: NextRequest, context: any) {
 }
 
 // DELETE /api/tasks/[taskId] - Delete a task
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { taskId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -273,7 +282,7 @@ export async function DELETE(request: NextRequest, context: any) {
     return NextResponse.json({
       message: "Task deleted successfully",
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while deleting the task" },
       { status: 500 }

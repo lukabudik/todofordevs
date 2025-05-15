@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest) {
       message: "Profile updated successfully",
       user: updatedUser,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while updating the profile" },
       { status: 500 }
@@ -84,7 +84,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ user });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching the profile" },
       { status: 500 }

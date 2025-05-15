@@ -5,8 +5,7 @@ import { useParams } from "next/navigation";
 import { ProjectOptions } from "@/components/projects/project-options";
 import { ProjectCollaborators } from "@/components/projects/project-collaborators";
 import { TaskFormDialog } from "@/components/tasks/dialogs";
-import { TaskOptions } from "@/components/tasks/task-options";
-import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
+// Removed unused imports
 import { useSession } from "next-auth/react";
 import { ViewSwitcher } from "@/components/kanban/view-switcher";
 import { KanbanBoard } from "@/components/kanban/kanban-board";
@@ -89,7 +88,7 @@ export default function ProjectPage() {
           ),
         };
       });
-    } catch (err) {
+    } catch {
       // Silently handle error - could add error state if needed
     }
   };
@@ -120,7 +119,7 @@ export default function ProjectPage() {
         if (session?.user?.id && data.project.ownerId === session.user.id) {
           setIsOwner(true);
         }
-      } catch (err) {
+      } catch {
         setError("Error loading project. Please try again later.");
       } finally {
         setIsLoading(false);
@@ -146,7 +145,7 @@ export default function ProjectPage() {
 
         const data = await response.json();
         setCollaborators(data.members || []);
-      } catch (err) {
+      } catch {
         // Silently handle error - could add error state if needed
       }
     };
@@ -290,21 +289,7 @@ export default function ProjectPage() {
     return 0;
   });
 
-  // Priority colors
-  const priorityColors = {
-    Low: "bg-blue-500",
-    Medium: "bg-yellow-500",
-    High: "bg-orange-500",
-    Urgent: "bg-red-500",
-  };
-
-  // Status colors
-  const statusColors = {
-    "To Do": "bg-gray-500",
-    "In Progress": "bg-blue-500",
-    Blocked: "bg-red-500",
-    Done: "bg-green-500",
-  };
+  // Removed unused color mappings
 
   if (isLoading) {
     return (

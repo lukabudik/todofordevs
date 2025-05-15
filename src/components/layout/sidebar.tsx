@@ -26,7 +26,7 @@ export function Sidebar() {
         }
         const data = await response.json();
         setProjects(data.projects);
-      } catch (err) {
+      } catch {
         setError("Failed to load projects");
       } finally {
         setIsLoading(false);

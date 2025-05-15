@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
@@ -28,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TaskActions } from "@/components/tasks/TaskActions";
 
 interface Task {
   id: string;
@@ -172,7 +172,7 @@ export function TaskDetail({
         } else {
           throw new Error("Task data not found in response");
         }
-      } catch (error) {
+      } catch {
         // Silently handle error - could add error state if needed
       } finally {
         setIsLoading(false);
@@ -197,7 +197,7 @@ export function TaskDetail({
         }
         const data = await response.json();
         setCollaborators(data.members || []);
-      } catch (error) {
+      } catch {
         // Silently handle error - could add error state if needed
       } finally {
         setIsLoadingCollaborators(false);
@@ -230,7 +230,7 @@ export function TaskDetail({
       }
 
       router.refresh();
-    } catch (error) {
+    } catch {
       // Silently handle error - could add error state if needed
     } finally {
       setIsDeleting(false);
@@ -276,7 +276,7 @@ export function TaskDetail({
       }
 
       router.refresh();
-    } catch (error) {
+    } catch {
       // Silently handle error - could add error state if needed
     } finally {
       setIsLoading(false);
@@ -284,7 +284,7 @@ export function TaskDetail({
   };
 
   // Handle input change
-  const handleInputChange = (field: keyof Task, value: any) => {
+  const handleInputChange = (field: keyof Task, value: string | null) => {
     setEditValues((prev) => ({
       ...prev,
       [field]: value,
@@ -301,7 +301,7 @@ export function TaskDetail({
         return "Invalid date";
       }
       return date.toLocaleDateString();
-    } catch (error) {
+    } catch {
       // Silently handle error
       return "Invalid date";
     }
@@ -316,7 +316,7 @@ export function TaskDetail({
         return "Unknown date";
       }
       return formatDistanceToNow(date, { addSuffix: true });
-    } catch (error) {
+    } catch {
       // Silently handle error
       return "Unknown date";
     }
@@ -343,20 +343,6 @@ export function TaskDetail({
   const reopenTask = () => {
     handleInputChange("status", "To Do");
     handleUpdate();
-  };
-
-  // Handle task update via TaskActions
-  const handleTaskActionUpdate = async (
-    taskId: string,
-    data: Partial<Task>
-  ) => {
-    // Update local state
-    setTask((prev) => (prev ? { ...prev, ...data } : prev));
-
-    // Call parent onTaskUpdate if provided
-    if (onTaskUpdate) {
-      await onTaskUpdate(taskId, data);
-    }
   };
 
   // Toggle edit mode
@@ -598,7 +584,7 @@ export function TaskDetail({
                               return "";
                             }
                             return date.toISOString().split("T")[0];
-                          } catch (error) {
+                          } catch {
                             // Silently handle error
                             return "";
                           }
@@ -658,10 +644,12 @@ export function TaskDetail({
                     title={task.assignee.name || "Assigned user"}
                   >
                     {task.assignee.image ? (
-                      <img
+                      <Image
                         src={task.assignee.image}
                         alt={task.assignee.name || "User"}
-                        className="h-6 w-6 rounded-full"
+                        width={24}
+                        height={24}
+                        className="h-6 w-6 rounded-full object-cover"
                       />
                     ) : (
                       getInitials(task.assignee)

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     let requestBody;
     try {
       requestBody = await req.json();
-    } catch (parseError) {
+    } catch {
       return NextResponse.json(
         { message: "Invalid request body" },
         { status: 400, headers }
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
             });
           }
         }
-      } catch (invitationError) {
+      } catch {
         // Continue registration even if invitation processing fails
       }
     } else {
@@ -133,30 +133,32 @@ export async function POST(req: NextRequest) {
         if (pendingInvitations.length > 0) {
           // Create collaborations for each pending invitation
           await Promise.all(
-            pendingInvitations.map(async (invitation) => {
-              try {
-                // Create project collaboration
-                await prisma.projectUser.create({
-                  data: {
-                    projectId: invitation.projectId,
-                    userId: user.id,
-                    role: "COLLABORATOR",
-                  },
-                });
+            pendingInvitations.map(
+              async (invitation: { projectId: string; id: string }) => {
+                try {
+                  // Create project collaboration
+                  await prisma.projectUser.create({
+                    data: {
+                      projectId: invitation.projectId,
+                      userId: user.id,
+                      role: "COLLABORATOR",
+                    },
+                  });
 
-                // Delete the pending invitation
-                await prisma.pendingInvitation.delete({
-                  where: {
-                    id: invitation.id,
-                  },
-                });
-              } catch (singleInvitationError) {
-                // Continue with other invitations even if one fails
+                  // Delete the pending invitation
+                  await prisma.pendingInvitation.delete({
+                    where: {
+                      id: invitation.id,
+                    },
+                  });
+                } catch {
+                  // Continue with other invitations even if one fails
+                }
               }
-            })
+            )
           );
         }
-      } catch (invitationsError) {
+      } catch {
         // Continue registration even if invitation processing fails
       }
     }

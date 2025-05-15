@@ -82,14 +82,8 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // For credentials provider, check if email is verified
+      // For credentials provider
       if (account?.provider === "credentials" && credentials?.email) {
-        const email = credentials.email as string;
-        const user = await prisma.user.findUnique({
-          where: { email },
-          select: { emailVerified: true },
-        });
-
         // Allow sign-in even if email is not verified
         // The middleware will handle redirecting to verification page
         return true;

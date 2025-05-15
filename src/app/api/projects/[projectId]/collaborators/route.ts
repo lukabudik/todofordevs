@@ -33,7 +33,10 @@ async function isProjectOwner(projectId: string, userId: string) {
 }
 
 // GET /api/projects/[projectId]/collaborators - Get all collaborators for a project
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -169,7 +172,7 @@ export async function GET(request: NextRequest, context: any) {
     }
 
     return NextResponse.json({ members, pendingInvitations });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching collaborators" },
       { status: 500 }
@@ -178,7 +181,10 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 // POST /api/projects/[projectId]/collaborators - Add a collaborator to a project
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -281,7 +287,7 @@ export async function POST(request: NextRequest, context: any) {
               project,
               token
             );
-          } catch (emailError) {
+          } catch {
             // Silently handle email errors - invitation is still updated
           }
 
@@ -326,7 +332,7 @@ export async function POST(request: NextRequest, context: any) {
           project,
           token
         );
-      } catch (emailError) {
+      } catch {
         // Silently handle email errors - invitation is still created
       }
 
@@ -404,7 +410,7 @@ export async function POST(request: NextRequest, context: any) {
         inviteeForEmail,
         project
       );
-    } catch (emailError) {
+    } catch {
       // Silently handle email errors - the user is still added as a collaborator
     }
 
@@ -421,7 +427,7 @@ export async function POST(request: NextRequest, context: any) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while adding the collaborator" },
       { status: 500 }

@@ -27,7 +27,7 @@ export default function ProjectsPage() {
         }
         const data = await response.json();
         setProjects(data.projects);
-      } catch (err) {
+      } catch {
         setError("Error loading projects. Please try again later.");
       } finally {
         setIsLoading(false);

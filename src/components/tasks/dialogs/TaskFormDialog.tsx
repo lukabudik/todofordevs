@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -49,15 +49,8 @@ export function TaskFormDialog({
   const [error, setError] = useState("");
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
 
-  // Fetch collaborators when dialog opens
-  useEffect(() => {
-    if (open) {
-      fetchCollaborators();
-    }
-  }, [open, projectId]);
-
   // Fetch collaborators from API
-  const fetchCollaborators = async () => {
+  const fetchCollaborators = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/collaborators`);
 
@@ -67,10 +60,17 @@ export function TaskFormDialog({
 
       const data = await response.json();
       setCollaborators(data.members || []);
-    } catch (err) {
+    } catch {
       // Silently handle error - could add error state if needed
     }
-  };
+  }, [projectId]);
+
+  // Fetch collaborators when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchCollaborators();
+    }
+  }, [open, fetchCollaborators]);
 
   const handleSubmit = async (values: TaskFormValues) => {
     setIsLoading(true);
@@ -145,7 +145,6 @@ export function TaskFormDialog({
         </DialogHeader>
         <TaskForm
           initialValues={task}
-          projectId={projectId}
           collaborators={collaborators}
           isLoading={isLoading}
           error={error}

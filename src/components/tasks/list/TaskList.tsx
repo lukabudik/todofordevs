@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { TaskActions } from "@/components/tasks/TaskActions";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,14 +76,6 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
     "In Progress": "border-blue-500",
     Blocked: "border-red-500",
     Done: "border-green-500",
-  };
-
-  // Status dot colors
-  const statusDotColors = {
-    "To Do": "bg-gray-500",
-    "In Progress": "bg-blue-500",
-    Blocked: "bg-red-500",
-    Done: "bg-green-500",
   };
 
   // Status icons
@@ -272,10 +265,12 @@ export function TaskList({ tasks, projectId, onTaskUpdate }: TaskListProps) {
                   <div className="flex items-center gap-2">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                       {task.assignee?.image ? (
-                        <img
+                        <Image
                           src={task.assignee.image}
                           alt={task.assignee.name || "User"}
-                          className="h-6 w-6 rounded-full"
+                          width={24}
+                          height={24}
+                          className="h-6 w-6 rounded-full object-cover"
                         />
                       ) : task.assignee ? (
                         getInitials(task.assignee)

@@ -16,7 +16,10 @@ async function isProjectOwner(projectId: string, userId: string) {
 }
 
 // DELETE /api/projects/[projectId]/collaborators/[userId] - Remove a collaborator from a project
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { projectId: string; userId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -86,7 +89,7 @@ export async function DELETE(request: NextRequest, context: any) {
     return NextResponse.json({
       message: "Collaborator removed successfully",
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while removing the collaborator" },
       { status: 500 }

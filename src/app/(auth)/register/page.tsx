@@ -49,7 +49,7 @@ function RegisterPageContent() {
       const contentType = response.headers.get("content-type");
 
       if (!contentType || !contentType.includes("application/json")) {
-        const responseText = await response.text();
+        await response.text(); // Consume the response body
         throw new Error("Invalid response from server");
       }
 
@@ -57,7 +57,7 @@ function RegisterPageContent() {
       let data;
       try {
         data = await response.json();
-      } catch (jsonError) {
+      } catch {
         throw new Error("Failed to parse server response");
       }
 
@@ -77,7 +77,7 @@ function RegisterPageContent() {
           inviterName: data.inviterName,
         });
       }
-    } catch (err) {
+    } catch {
       setError("Invalid or expired invitation link");
       // Clear invitation token if it's invalid
       setInvitationToken(null);
@@ -97,7 +97,12 @@ function RegisterPageContent() {
 
     try {
       // Prepare registration data
-      const registrationData: any = {
+      const registrationData: {
+        name: string;
+        email: string;
+        password: string;
+        invitationToken?: string;
+      } = {
         name,
         email,
         password,
@@ -122,7 +127,7 @@ function RegisterPageContent() {
       const contentType = response.headers.get("content-type");
 
       if (!contentType || !contentType.includes("application/json")) {
-        const responseText = await response.text();
+        await response.text(); // Consume the response body
         throw new Error("Invalid response from server");
       }
 
@@ -130,7 +135,7 @@ function RegisterPageContent() {
       let data;
       try {
         data = await response.json();
-      } catch (jsonError) {
+      } catch {
         throw new Error("Failed to parse server response");
       }
 
@@ -140,9 +145,9 @@ function RegisterPageContent() {
 
       // If registration was successful, redirect to login page
       router.push("/login?registrationSuccess=true");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
         setError("An error occurred during registration");
       }

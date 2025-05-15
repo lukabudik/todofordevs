@@ -86,7 +86,7 @@ export function ProjectCollaborators({
       } else {
         setPendingInvitations([]);
       }
-    } catch (err) {
+    } catch {
       setError("Failed to load collaborators. Please try again.");
     } finally {
       setIsLoadingCollaborators(false);

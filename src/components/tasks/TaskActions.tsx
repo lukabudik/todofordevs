@@ -31,7 +31,6 @@ import {
   User,
   Tag,
   CheckCircle,
-  Clock,
   AlertCircle,
   CircleDashed,
   CircleEllipsis,
@@ -160,7 +159,7 @@ export function TaskActions({
 
     try {
       await onTaskUpdate(task.id, { status: newStatus });
-    } catch (err) {
+    } catch {
       // Error handling is managed by the parent component
     }
   };
@@ -171,7 +170,7 @@ export function TaskActions({
 
     try {
       await onTaskUpdate(task.id, { priority: newPriority });
-    } catch (err) {
+    } catch {
       // Error handling is managed by the parent component
     }
   };
@@ -184,7 +183,7 @@ export function TaskActions({
       await onTaskUpdate(task.id, {
         assigneeId: newAssigneeId === "unassigned" ? null : newAssigneeId,
       });
-    } catch (err) {
+    } catch {
       // Error handling is managed by the parent component
     }
   };
@@ -223,7 +222,7 @@ export function TaskActions({
 
     try {
       await onTaskUpdate(task.id, { dueDate: newDueDate });
-    } catch (err) {
+    } catch {
       // Error handling is managed by the parent component
     }
   };

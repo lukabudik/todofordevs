@@ -54,7 +54,10 @@ interface TaskFilter {
 }
 
 // GET /api/projects/[projectId]/tasks - Get all tasks for a project
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -115,7 +118,7 @@ export async function GET(request: NextRequest, context: any) {
     });
 
     return NextResponse.json({ tasks });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while fetching tasks" },
       { status: 500 }
@@ -124,7 +127,10 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 // POST /api/projects/[projectId]/tasks - Create a new task
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  context: { params: { projectId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -207,7 +213,7 @@ export async function POST(request: NextRequest, context: any) {
       { message: "Task created successfully", task },
       { status: 201 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "An error occurred while creating the task" },
       { status: 500 }

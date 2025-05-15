@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -62,10 +63,12 @@ export function Navbar() {
                   <DropdownMenuTrigger className="flex items-center gap-2 outline-none">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                       {session.user.image ? (
-                        <img
+                        <Image
                           src={session.user.image}
                           alt={session.user.name || "User"}
-                          className="h-8 w-8 rounded-full"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (
                         getInitials()

@@ -73,14 +73,6 @@ export function KanbanColumn({
     }
   }, [isOver, active, tasks]);
 
-  // Status colors - only for the indicator dot
-  const statusColors = {
-    "To Do": "bg-gray-500",
-    "In Progress": "bg-blue-500",
-    Blocked: "bg-red-500",
-    Done: "bg-green-500",
-  };
-
   // Status icons
   const statusIcons = {
     "To Do": <CircleDashed className="h-5 w-5 text-gray-500" />,
@@ -88,10 +80,6 @@ export function KanbanColumn({
     Blocked: <AlertCircle className="h-5 w-5 text-red-500" />,
     Done: <CheckCircle className="h-5 w-5 text-green-500" />,
   };
-
-  // Get color for current status
-  const statusColor =
-    statusColors[status as keyof typeof statusColors] || "bg-gray-500";
 
   // Get icon for current status
   const statusIcon = statusIcons[status as keyof typeof statusIcons] || (

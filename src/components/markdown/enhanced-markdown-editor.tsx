@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import NextImage from "next/image";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -18,7 +19,7 @@ import {
   Code,
   CheckSquare,
   Table,
-  Image,
+  Image as ImageIcon,
   Heading1,
   Heading2,
   Heading3,
@@ -36,7 +37,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -84,36 +84,35 @@ export function EnhancedMarkdownEditor({
   };
 
   // Insert text at cursor position
-  const insertText = (
-    before: string,
-    after: string = "",
-    defaultText: string = ""
-  ) => {
-    if (!textareaRef.current) return;
+  const insertText = useCallback(
+    (before: string, after: string = "", defaultText: string = "") => {
+      if (!textareaRef.current) return;
 
-    const start = textareaRef.current.selectionStart;
-    const end = textareaRef.current.selectionEnd;
-    const selectedText = value.substring(start, end) || defaultText;
-    const newValue =
-      value.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      value.substring(end);
+      const start = textareaRef.current.selectionStart;
+      const end = textareaRef.current.selectionEnd;
+      const selectedText = value.substring(start, end) || defaultText;
+      const newValue =
+        value.substring(0, start) +
+        before +
+        selectedText +
+        after +
+        value.substring(end);
 
-    onChange(newValue);
+      onChange(newValue);
 
-    // Set cursor position after the inserted text
-    setTimeout(() => {
-      if (textareaRef.current) {
-        const newCursorPos =
-          start + before.length + selectedText.length + after.length;
-        textareaRef.current.focus();
-        textareaRef.current.selectionStart = newCursorPos;
-        textareaRef.current.selectionEnd = newCursorPos;
-      }
-    }, 0);
-  };
+      // Set cursor position after the inserted text
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newCursorPos =
+            start + before.length + selectedText.length + after.length;
+          textareaRef.current.focus();
+          textareaRef.current.selectionStart = newCursorPos;
+          textareaRef.current.selectionEnd = newCursorPos;
+        }
+      }, 0);
+    },
+    [value, onChange]
+  );
 
   // Toolbar actions
   const toolbarActions = [
@@ -151,7 +150,7 @@ export function EnhancedMarkdownEditor({
       shortcut: "Ctrl+K",
     },
     {
-      icon: <Image className="h-4 w-4" />,
+      icon: <ImageIcon className="h-4 w-4" />,
       tooltip: "Image",
       action: () => setImageDialogOpen(true),
     },
@@ -223,7 +222,7 @@ export function EnhancedMarkdownEditor({
     return () => {
       window.removeEventListener("keydown", handleKeyboardShortcuts);
     };
-  }, [value]);
+  }, [value, insertText]);
 
   // Insert link
   const insertLink = () => {
@@ -356,6 +355,25 @@ export function EnhancedMarkdownEditor({
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
+                components={{
+                  img: ({ ...props }) => {
+                    // Always provide alt, fallback to empty string if missing
+                    // Handle the src prop - ensure it's a string URL
+                    const imgSrc =
+                      typeof props.src === "string" ? props.src : "";
+
+                    return (
+                      <NextImage
+                        src={imgSrc}
+                        alt={props.alt ?? ""}
+                        width={props.width ? Number(props.width) : 500}
+                        height={props.height ? Number(props.height) : 300}
+                        className={`${props.className || ""} max-w-full h-auto`}
+                        unoptimized={true} // For external images
+                      />
+                    );
+                  },
+                }}
               >
                 {value}
               </ReactMarkdown>

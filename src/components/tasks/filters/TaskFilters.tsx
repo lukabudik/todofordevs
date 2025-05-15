@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Search,
-  Save,
-  Filter,
-  X,
-  Check,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Search, Save, Filter, X, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -191,12 +183,15 @@ export function TaskFilters({
     showNoDueDate,
     projectId,
     onFiltersChange,
+    sortBy,
+    sortOrder,
   ]);
 
   // Update sort when changed
   useEffect(() => {
+    // Call the parent's sort change handler with current sort values
     onSortChange(sortBy, sortOrder);
-  }, [sortBy, sortOrder, onSortChange]);
+  }, [onSortChange, sortBy, sortOrder]);
 
   // Save current filters as a preset
   const savePreset = () => {
@@ -260,11 +255,6 @@ export function TaskFilters({
     setDueDateFilter(null);
     setShowNoAssignee(false);
     setShowNoDueDate(false);
-  };
-
-  // Toggle sort order
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
   // Get due date filter label

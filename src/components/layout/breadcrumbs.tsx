@@ -10,11 +10,6 @@ interface BreadcrumbItem {
   href: string;
 }
 
-interface Project {
-  id: string;
-  name: string;
-}
-
 export function Breadcrumbs() {
   const pathname = usePathname();
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
@@ -53,7 +48,7 @@ export function Breadcrumbs() {
                 href: `/projects/${projectId}`,
               });
             }
-          } catch (error) {
+          } catch {
             // Silently handle error - could add error state if needed
           } finally {
             setIsLoading(false);

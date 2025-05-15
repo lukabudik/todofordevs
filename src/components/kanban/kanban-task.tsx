@@ -3,9 +3,9 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { TaskActions } from "@/components/tasks/TaskActions";
-import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { formatDistanceToNow } from "date-fns";
 import { GripVertical } from "lucide-react";
+import Image from "next/image";
 
 interface Task {
   id: string;
@@ -158,10 +158,12 @@ export function KanbanTask({
             title={task.assignee.name || "Assigned user"}
           >
             {task.assignee.image ? (
-              <img
+              <Image
                 src={task.assignee.image}
                 alt={task.assignee.name || "User"}
-                className="h-6 w-6 rounded-full"
+                width={24}
+                height={24}
+                className="h-6 w-6 rounded-full object-cover"
               />
             ) : (
               getInitials()
