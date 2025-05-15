@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
-import { Navbar } from "./navbar";
+
 import { Breadcrumbs } from "./breadcrumbs";
+import { Navbar } from "./navbar";
 
 interface MainLayoutProps {
   children: ReactNode;

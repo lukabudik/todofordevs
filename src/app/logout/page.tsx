@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function LogoutPage() {
   const router = useRouter();

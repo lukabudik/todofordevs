@@ -1,22 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import {
+  closestCorners,
+  defaultDropAnimationSideEffects,
   DndContext,
   DragEndEvent,
   DragOverEvent,
+  DragOverlay,
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
-  closestCorners,
   useSensor,
   useSensors,
-  DragOverlay,
-  defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { KanbanColumn } from "./kanban-column";
+import { useState } from "react";
+
 import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
+
+import { KanbanColumn } from "./kanban-column";
 
 interface Task {
   id: string;

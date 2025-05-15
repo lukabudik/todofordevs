@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { Braces, LogOut, User } from "lucide-react";
 import Image from "next/image";
-import { useSession, signOut } from "next-auth/react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+
+import { CommandPalette } from "@/components/command/command-palette";
+import { ProjectSwitcher } from "@/components/projects/project-switcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Braces } from "lucide-react";
-import { ProjectSwitcher } from "@/components/projects/project-switcher";
-import { CommandPalette } from "@/components/command/command-palette";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Navbar() {
   const { data: session, status } = useSession();

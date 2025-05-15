@@ -1,3 +1,3 @@
 export * from "./QuickAddDialog";
-export * from "./TaskFormDialog";
 export * from "./TaskDetailPanel";
+export * from "./TaskFormDialog";

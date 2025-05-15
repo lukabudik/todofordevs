@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcrypt";
-import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
+import { NextRequest, NextResponse } from "next/server";
+
 import { sendVerificationEmail } from "@/lib/email";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   // Set content type to ensure we always return JSON

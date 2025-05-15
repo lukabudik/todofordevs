@@ -1,12 +1,10 @@
 "use client";
 
+import { AlertCircle, Github, Mail } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Github, AlertCircle, Mail } from "lucide-react";
-
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 function RegisterPageContent() {
   const router = useRouter();

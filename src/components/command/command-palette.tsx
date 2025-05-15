@@ -1,8 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  FolderIcon,
+  LogOut,
+  Monitor,
+  Moon,
+  Plus,
+  Sun,
+  User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
 import {
   CommandDialog,
   CommandEmpty,
@@ -12,16 +23,6 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  FolderIcon,
-  Plus,
-  User,
-  Sun,
-  Moon,
-  Monitor,
-  LogOut,
-} from "lucide-react";
-import { useTheme } from "next-themes";
 
 interface Project {
   id: string;

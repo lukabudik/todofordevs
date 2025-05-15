@@ -1,21 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { MainLayout } from "@/components/layout/main-layout";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
-  Users,
-  Github,
-  Zap,
   Braces,
-  Terminal,
-  Star,
-  GitFork,
   ExternalLink,
+  GitFork,
+  Github,
+  Star,
+  Terminal,
+  Users,
+  Zap,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+
+import { MainLayout } from "@/components/layout/main-layout";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { status } = useSession();

@@ -1,5 +1,6 @@
-import { MainLayout } from "@/components/layout/main-layout";
 import type { Metadata } from "next";
+
+import { MainLayout } from "@/components/layout/main-layout";
 
 export const metadata: Metadata = {
   title: "Dashboard - TodoForDevs",

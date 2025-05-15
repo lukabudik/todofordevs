@@ -1,9 +1,10 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { sendPendingInvitationEmail } from "@/lib/email";
-import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
 
 // Helper function to generate a secure token for invitations
 function generateInvitationToken(): string {

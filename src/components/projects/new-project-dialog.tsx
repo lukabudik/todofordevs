@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusIcon } from "lucide-react";
 
 export function NewProjectDialog() {
   const [open, setOpen] = useState(false);

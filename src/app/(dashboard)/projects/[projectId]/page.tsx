@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { ProjectOptions } from "@/components/projects/project-options";
-import { ProjectCollaborators } from "@/components/projects/project-collaborators";
-import { TaskFormDialog } from "@/components/tasks/dialogs";
 // Removed unused imports
 import { useSession } from "next-auth/react";
-import { ViewSwitcher } from "@/components/kanban/view-switcher";
+import { useCallback, useEffect, useState } from "react";
+
 import { KanbanBoard } from "@/components/kanban/kanban-board";
-import { EnhancedTaskList } from "@/components/tasks/list";
+import { ViewSwitcher } from "@/components/kanban/view-switcher";
+import { ProjectCollaborators } from "@/components/projects/project-collaborators";
+import { ProjectOptions } from "@/components/projects/project-options";
+import { TaskFormDialog } from "@/components/tasks/dialogs";
 import { EnhancedFilters } from "@/components/tasks/filters";
+import { EnhancedTaskList } from "@/components/tasks/list";
 
 interface Project {
   id: string;

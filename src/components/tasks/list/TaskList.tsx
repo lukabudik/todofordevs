@@ -1,25 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  AlertCircle,
+  CheckCircle,
+  CircleDashed,
+  CircleEllipsis,
+  Settings,
+  User,
+} from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+
+import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
 import { TaskActions } from "@/components/tasks/TaskActions";
 import { Button } from "@/components/ui/button";
 import {
-  Settings,
-  CircleDashed,
-  CircleEllipsis,
-  AlertCircle,
-  CheckCircle,
-  User,
-} from "lucide-react";
-import { TaskDetailPanel } from "@/components/tasks/dialogs/TaskDetailPanel";
-import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDistanceToNow } from "date-fns";
 
 interface Task {
   id: string;

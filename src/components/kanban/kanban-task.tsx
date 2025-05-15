@@ -2,10 +2,11 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TaskActions } from "@/components/tasks/TaskActions";
 import { formatDistanceToNow } from "date-fns";
 import { GripVertical } from "lucide-react";
 import Image from "next/image";
+
+import { TaskActions } from "@/components/tasks/TaskActions";
 
 interface Task {
   id: string;

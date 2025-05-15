@@ -1,13 +1,15 @@
 "use client";
 
+import "highlight.js/styles/github-dark.css";
+
+import { Edit2, Eye } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
+import remarkGfm from "remark-gfm";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Eye, Edit2 } from "lucide-react";
 
 interface MarkdownEditorProps {
   value: string;

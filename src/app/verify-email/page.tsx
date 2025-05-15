@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Mail } from "lucide-react";
+import { CheckCircle, Mail, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { Suspense, useEffect, useState } from "react";
 
-import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 
 function VerifyEmailContent() {
   const router = useRouter();

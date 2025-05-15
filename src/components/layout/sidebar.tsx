@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 
 interface Project {

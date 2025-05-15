@@ -1,10 +1,11 @@
-import { Resend } from "resend";
-import { prisma } from "@/lib/prisma";
+import crypto from "crypto";
 import React from "react";
-import VerificationEmail from "@/components/email/verification-email";
+import { Resend } from "resend";
+
 import PasswordResetEmail from "@/components/email/password-reset-email";
 import ProjectInvitationEmail from "@/components/email/project-invitation-email";
-import crypto from "crypto";
+import VerificationEmail from "@/components/email/verification-email";
+import { prisma } from "@/lib/prisma";
 
 // Initialize Resend with API key from environment variables
 const resend = new Resend(process.env.RESEND_API_KEY);

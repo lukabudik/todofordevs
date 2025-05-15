@@ -1,9 +1,10 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (

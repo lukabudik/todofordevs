@@ -1,12 +1,13 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import {
-  sendProjectInvitationEmail,
   sendPendingInvitationEmail,
+  sendProjectInvitationEmail,
 } from "@/lib/email";
-import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
 
 interface DbInvitation {
   id: string;

@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { KanbanTask } from "./kanban-task";
 import {
-  CircleDashed,
-  CircleEllipsis,
   AlertCircle,
   CheckCircle,
+  CircleDashed,
+  CircleEllipsis,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { KanbanTask } from "./kanban-task";
 
 interface Task {
   id: string;

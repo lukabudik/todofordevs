@@ -3,6 +3,7 @@ import { compare } from "bcrypt";
 import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
+
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
