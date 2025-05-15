@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -55,10 +55,11 @@ interface TaskFilter {
 
 // GET /api/projects/[projectId]/tasks - Get all tasks for a project
 export async function GET(
-  request: NextRequest,
-  context: { params: { projectId: string } }
+  request: Request,
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const actualParams = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -66,7 +67,7 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const projectId = context.params.projectId;
+    const projectId = actualParams.projectId;
 
     // Check if user has access to the project
     const hasAccess = await hasProjectAccess(projectId, userId);
@@ -128,10 +129,11 @@ export async function GET(
 
 // POST /api/projects/[projectId]/tasks - Create a new task
 export async function POST(
-  request: NextRequest,
-  context: { params: { projectId: string } }
+  request: Request,
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const actualParams = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -139,7 +141,7 @@ export async function POST(
     }
 
     const userId = session.user.id;
-    const projectId = context.params.projectId;
+    const projectId = actualParams.projectId;
 
     // Check if user has access to the project
     const hasAccess = await hasProjectAccess(projectId, userId);

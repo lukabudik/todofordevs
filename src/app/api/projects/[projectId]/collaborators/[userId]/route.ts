@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -17,10 +17,11 @@ async function isProjectOwner(projectId: string, userId: string) {
 
 // DELETE /api/projects/[projectId]/collaborators/[userId] - Remove a collaborator from a project
 export async function DELETE(
-  request: NextRequest,
-  context: { params: { projectId: string; userId: string } }
+  request: Request,
+  { params }: { params: Promise<{ projectId: string; userId: string }> }
 ) {
   try {
+    const actualParams = await params; // Await the promise to get parameters
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -28,8 +29,8 @@ export async function DELETE(
     }
 
     const currentUserId = session.user.id;
-    const projectId = context.params.projectId;
-    const userId = context.params.userId;
+    const projectId = actualParams.projectId;
+    const userId = actualParams.userId;
 
     // Check if current user is the project owner
     const isOwner = await isProjectOwner(projectId, currentUserId);

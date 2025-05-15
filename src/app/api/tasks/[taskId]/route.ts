@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -64,10 +64,11 @@ interface TaskUpdateData {
 
 // GET /api/tasks/[taskId] - Get a single task by ID
 export async function GET(
-  request: NextRequest,
-  context: { params: { taskId: string } }
+  request: Request,
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const actualParams = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -75,7 +76,7 @@ export async function GET(
     }
 
     const userId = session.user.id;
-    const taskId = context.params.taskId;
+    const taskId = actualParams.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);
@@ -122,10 +123,11 @@ export async function GET(
 
 // PUT /api/tasks/[taskId] - Update a task
 export async function PUT(
-  request: NextRequest,
-  context: { params: { taskId: string } }
+  request: Request,
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const actualParams = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -133,7 +135,7 @@ export async function PUT(
     }
 
     const userId = session.user.id;
-    const taskId = context.params.taskId;
+    const taskId = actualParams.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);
@@ -253,10 +255,11 @@ export async function PUT(
 
 // DELETE /api/tasks/[taskId] - Delete a task
 export async function DELETE(
-  request: NextRequest,
-  context: { params: { taskId: string } }
+  request: Request,
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    const actualParams = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -264,7 +267,7 @@ export async function DELETE(
     }
 
     const userId = session.user.id;
-    const taskId = context.params.taskId;
+    const taskId = actualParams.taskId;
 
     // Check if user has access to the task
     const hasAccess = await hasTaskAccess(taskId, userId);
