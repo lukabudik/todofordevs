@@ -8,6 +8,23 @@ import {
 } from "@/lib/email";
 import crypto from "crypto";
 
+interface DbInvitation {
+  id: string;
+  email: string;
+  createdAt: Date;
+  expiresAt: Date;
+  inviterId: string;
+  // Prisma's PendingInvitation model also includes 'token', 'projectId',
+  // and 'updatedAt'. They are not strictly needed for this specific map's type,
+  // but represent the fuller structure of `invitation` from `dbInvitations`.
+  inviter: {
+    // The 'select' clause for inviter specifies id, name, email.
+    id: string;
+    name: string | null;
+    email: string | null;
+  };
+}
+
 // Helper function to generate a secure token for invitations
 function generateInvitationToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -162,7 +179,7 @@ export async function GET(
       });
 
       // Format pending invitations
-      pendingInvitations = dbInvitations.map((invitation) => ({
+      pendingInvitations = dbInvitations.map((invitation: DbInvitation) => ({
         id: invitation.id,
         email: invitation.email,
         createdAt: invitation.createdAt,
