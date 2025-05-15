@@ -9,6 +9,9 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/register");
   const isApiAuthRoute = request.nextUrl.pathname.startsWith("/api/auth");
   const isPublicRoute = request.nextUrl.pathname === "/";
+  const isLegalRoute =
+    request.nextUrl.pathname.startsWith("/privacy") ||
+    request.nextUrl.pathname.startsWith("/terms");
   const isVerificationRoute =
     request.nextUrl.pathname.startsWith("/verify-email") ||
     request.nextUrl.pathname.startsWith("/resend-verification");
@@ -23,9 +26,10 @@ export async function middleware(request: NextRequest) {
     (request.nextUrl.pathname === "/register" &&
       request.nextUrl.search.includes("invitation="));
 
-  // Allow public routes, API auth routes, verification routes, password reset routes, and invitation routes
+  // Allow public routes, legal routes, API auth routes, verification routes, password reset routes, and invitation routes
   if (
     isPublicRoute ||
+    isLegalRoute ||
     isApiAuthRoute ||
     isVerificationRoute ||
     isPasswordResetRoute ||
