@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
+import { CliInfo } from "@/components/cli/cli-info";
 import { LandingLayout } from "@/components/layout/landing-layout";
 import { Button } from "@/components/ui/button";
 
@@ -210,6 +211,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* CLI Section */}
+      <CliInfo />
+
       {/* Open Source Banner */}
       <section className="py-12 bg-card border-y">
         <div className="container mx-auto px-4 max-w-5xl">
@@ -373,6 +377,14 @@ export default function Home() {
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Get Started
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/cli"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    CLI Tool
                   </Link>
                 </li>
                 <li>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { CliBanner } from "@/components/cli/cli-banner";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { ProjectOptions } from "@/components/projects/project-options";
 
@@ -40,6 +41,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="container mx-auto py-8">
+      <CliBanner />
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Your Projects</h1>
         <NewProjectDialog />

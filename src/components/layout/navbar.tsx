@@ -1,6 +1,6 @@
 "use client";
 
-import { Braces, LogOut, User } from "lucide-react";
+import { Braces, LogOut, Terminal, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
@@ -15,6 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -57,6 +63,22 @@ export function Navbar() {
             )}
           </div>
           <div className="flex items-center gap-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/cli"
+                    className="flex h-9 w-9 items-center justify-center rounded-md border bg-background text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    <Terminal className="h-4 w-4" />
+                    <span className="sr-only">CLI</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>TodoForDevs CLI</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <ThemeToggle />
             <nav className="flex items-center gap-4">
               {isAuthenticated ? (

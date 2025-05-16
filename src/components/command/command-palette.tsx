@@ -7,8 +7,10 @@ import {
   Moon,
   Plus,
   Sun,
+  Terminal,
   User,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
@@ -134,6 +136,20 @@ export function CommandPalette() {
               >
                 <Plus className="mr-2 h-4 w-4" />
                 <span>New Project</span>
+              </CommandItem>
+            </CommandGroup>
+
+            <CommandSeparator />
+
+            <CommandGroup heading="CLI">
+              <CommandItem
+                onSelect={() => runCommand(() => window.open("/cli", "_blank"))}
+              >
+                <Terminal className="mr-2 h-4 w-4" />
+                <span>TodoForDevs CLI</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  Command Line Tool
+                </span>
               </CommandItem>
             </CommandGroup>
 
