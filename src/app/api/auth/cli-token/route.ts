@@ -1,9 +1,8 @@
 import { sign } from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
+import { DeviceCodeEntry, deviceCodes } from "@/lib/deviceCodes";
 import { prisma } from "@/lib/prisma";
-
-import { deviceCodes } from "../cli-login-initiate/route";
 
 export async function GET(request: Request) {
   try {
@@ -19,7 +18,9 @@ export async function GET(request: Request) {
     }
 
     // Find the device code entry
-    const entry = deviceCodes.find((e) => e.deviceCode === deviceCode);
+    const entry = deviceCodes.find(
+      (e: DeviceCodeEntry) => e.deviceCode === deviceCode
+    );
 
     if (!entry) {
       return NextResponse.json(
@@ -31,7 +32,9 @@ export async function GET(request: Request) {
     // Check if expired
     if (entry.expiresAt < new Date()) {
       // Remove the expired entry
-      const index = deviceCodes.findIndex((e) => e.deviceCode === deviceCode);
+      const index = deviceCodes.findIndex(
+        (e: DeviceCodeEntry) => e.deviceCode === deviceCode
+      );
       if (index !== -1) {
         deviceCodes.splice(index, 1);
       }
@@ -73,7 +76,9 @@ export async function GET(request: Request) {
     );
 
     // Remove the device code entry (it's been used)
-    const index = deviceCodes.findIndex((e) => e.deviceCode === deviceCode);
+    const index = deviceCodes.findIndex(
+      (e: DeviceCodeEntry) => e.deviceCode === deviceCode
+    );
     if (index !== -1) {
       deviceCodes.splice(index, 1);
     }

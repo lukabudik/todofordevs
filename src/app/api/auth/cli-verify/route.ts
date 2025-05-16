@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
-
-import { deviceCodes } from "../cli-login-initiate/route";
+import { DeviceCodeEntry, deviceCodes } from "@/lib/deviceCodes";
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +17,9 @@ export async function POST(request: Request) {
     }
 
     // Find the device code entry by user code
-    const entry = deviceCodes.find((e) => e.userCode === userCode);
+    const entry = deviceCodes.find(
+      (e: DeviceCodeEntry) => e.userCode === userCode
+    );
 
     if (!entry) {
       return NextResponse.json({ error: "invalid_user_code" }, { status: 400 });
@@ -27,7 +28,9 @@ export async function POST(request: Request) {
     // Check if expired
     if (entry.expiresAt < new Date()) {
       // Remove the expired entry
-      const index = deviceCodes.findIndex((e) => e.userCode === userCode);
+      const index = deviceCodes.findIndex(
+        (e: DeviceCodeEntry) => e.userCode === userCode
+      );
       if (index !== -1) {
         deviceCodes.splice(index, 1);
       }

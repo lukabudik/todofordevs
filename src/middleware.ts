@@ -1,4 +1,4 @@
-import { jwtVerify } from "jose";
+// import { jwtVerify } from "jose"; // Uncomment when implementing JWT verification
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   if (!token) {
     const authHeader = request.headers.get("Authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
-      const bearerToken = authHeader.substring(7);
+      // const bearerToken = authHeader.substring(7);
       // TODO: For production, implement proper JWT verification here using `jose` and NEXTAUTH_SECRET
       // For now, we assume if a Bearer token exists, it's a CLI request.
       // The actual token validation will happen in the API route itself.
@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     (pathname === "/register" &&
       request.nextUrl.search.includes("invitation="));
   const isApiRoute = pathname.startsWith("/api/");
-  const isCliTokenRequest = token && (token as any).isCli;
+  const isCliTokenRequest = token && (token as { isCli?: boolean }).isCli;
 
   // Allow public routes, legal routes, API auth routes, verification routes, password reset routes, and invitation routes
   if (
@@ -66,14 +66,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect to projects if accessing auth routes with a valid web token
-  if (token && !(token as any).isCli && isAuthRoute) {
+  if (token && !(token as { isCli?: boolean }).isCli && isAuthRoute) {
     return NextResponse.redirect(new URL("/projects", request.url));
   }
 
   // Email verification check for non-CLI, non-API, authenticated users
   if (
     token &&
-    !(token as any).isCli &&
+    !(token as { isCli?: boolean }).isCli &&
     !isApiRoute &&
     !isAuthRoute &&
     !isVerificationRoute &&
@@ -109,7 +109,7 @@ export async function middleware(request: NextRequest) {
           new URL("/verify-email?needsVerification=true", request.url)
         );
       }
-    } catch (error) {
+    } catch (_error) {
       // console.error("Error checking email verification:", error); // Keep commented for prod
       return NextResponse.next();
     }

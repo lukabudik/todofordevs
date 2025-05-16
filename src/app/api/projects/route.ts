@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
             { status: 401 }
           );
         }
-      } catch (error) {
+      } catch (_error) {
         // console.error("Error decoding CLI token:", error); // Keep this commented out or remove for prod
         return NextResponse.json(
           { message: "Error decoding CLI token" },
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
             { status: 401 }
           );
         }
-      } catch (error) {
+      } catch (_error) {
         return NextResponse.json(
           { message: "Error decoding CLI token" },
           { status: 401 }

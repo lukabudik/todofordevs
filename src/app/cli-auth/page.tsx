@@ -1,13 +1,14 @@
 "use client";
 
+import { AlertCircle, CheckCircle, Terminal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function CliAuthPage() {
+function CliAuthContent() {
   const [userCode, setUserCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -44,7 +45,7 @@ export default function CliAuthPage() {
       setTimeout(() => {
         router.push("/");
       }, 3000);
-    } catch (error) {
+    } catch (_error) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
     }
@@ -57,55 +58,77 @@ export default function CliAuthPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">CLI Authentication</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+      <div className="w-full max-w-md space-y-8 rounded-lg border bg-card p-8 shadow-md">
+        <div className="flex flex-col items-center justify-center text-center">
+          <h1 className="text-2xl font-bold tracking-tight">
+            CLI Authentication
+          </h1>
 
-      {success ? (
-        <div className="bg-green-100 p-4 rounded mb-4">
-          <p className="text-green-800">
-            Authentication successful! You can now return to the CLI.
-          </p>
+          <div className="mt-8 flex flex-col items-center justify-center">
+            {success ? (
+              <div className="flex flex-col items-center space-y-4">
+                <CheckCircle className="h-16 w-16 text-green-500" />
+                <h2 className="text-xl font-semibold">
+                  Authentication Successful!
+                </h2>
+                <p className="text-center text-muted-foreground">
+                  You have successfully authenticated with the CLI. You can now
+                  return to your terminal.
+                </p>
+                <Button
+                  onClick={() => router.push("/")}
+                  className="mt-4 w-full"
+                >
+                  Continue to Dashboard
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-4">
+                <Terminal className="h-16 w-16 text-primary" />
+                <p className="text-center text-muted-foreground">
+                  Enter the code displayed in your CLI to authenticate.
+                </p>
+
+                {error && (
+                  <div className="flex w-full items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="w-full space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="userCode">Authentication Code</Label>
+                    <Input
+                      type="text"
+                      id="userCode"
+                      value={userCode}
+                      onChange={handleInputChange}
+                      placeholder="Enter code (e.g., ABC123)"
+                      maxLength={6}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Verifying..." : "Verify"}
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <>
-          <p className="mb-4">
-            Enter the code displayed in your CLI to authenticate.
-          </p>
-
-          {error && (
-            <div className="bg-red-100 p-4 rounded mb-4">
-              <p className="text-red-800">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <Label htmlFor="userCode" className="block mb-2">
-                Authentication Code
-              </Label>
-              <Input
-                type="text"
-                id="userCode"
-                value={userCode}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                placeholder="Enter code (e.g., ABC123)"
-                maxLength={6}
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-              disabled={isLoading}
-            >
-              {isLoading ? "Verifying..." : "Verify"}
-            </Button>
-          </form>
-        </>
-      )}
+      </div>
     </div>
+  );
+}
+
+export default function CliAuthPage() {
+  return (
+    <Suspense>
+      <CliAuthContent />
+    </Suspense>
   );
 }

@@ -91,7 +91,7 @@ export async function GET(
             { status: 401 }
           );
         }
-      } catch (error) {
+      } catch (_error) {
         return NextResponse.json(
           { message: "Error decoding CLI token" },
           { status: 401 }
@@ -176,7 +176,7 @@ export async function PUT(
             { status: 401 }
           );
         }
-      } catch (error) {
+      } catch (_error) {
         return NextResponse.json(
           { message: "Error decoding CLI token" },
           { status: 401 }
@@ -333,7 +333,7 @@ export async function DELETE(
             { status: 401 }
           );
         }
-      } catch (error) {
+      } catch (_error) {
         return NextResponse.json(
           { message: "Error decoding CLI token" },
           { status: 401 }
