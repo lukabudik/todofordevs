@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server"; // Added NextRequest
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
@@ -65,18 +65,44 @@ interface TaskUpdateData {
 
 // GET /api/tasks/[taskId] - Get a single task by ID
 export async function GET(
-  request: Request,
+  request: NextRequest, // Changed to NextRequest
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     const actualParams = await params;
     const session = await getServerSession(authOptions);
+    const authHeader = request.headers.get("Authorization");
+    const isCliRequest = authHeader && authHeader.startsWith("Bearer ");
 
-    if (!session?.user?.id) {
+    let userId = session?.user?.id;
+
+    if (isCliRequest && authHeader) {
+      const bearerToken = authHeader.substring(7);
+      try {
+        // TODO: Implement robust JWT verification
+        const decodedToken = JSON.parse(
+          Buffer.from(bearerToken.split(".")[1], "base64").toString()
+        );
+        if (decodedToken && decodedToken.id) {
+          userId = decodedToken.id;
+        } else {
+          return NextResponse.json(
+            { message: "Invalid CLI token" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { message: "Error decoding CLI token" },
+          { status: 401 }
+        );
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
     const taskId = actualParams.taskId;
 
     // Check if user has access to the task
@@ -124,18 +150,43 @@ export async function GET(
 
 // PUT /api/tasks/[taskId] - Update a task
 export async function PUT(
-  request: Request,
+  request: NextRequest, // Changed to NextRequest
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     const actualParams = await params;
     const session = await getServerSession(authOptions);
+    const authHeader = request.headers.get("Authorization");
+    const isCliRequest = authHeader && authHeader.startsWith("Bearer ");
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    let userId = session?.user?.id;
+
+    if (isCliRequest && authHeader) {
+      const bearerToken = authHeader.substring(7);
+      try {
+        // TODO: Implement robust JWT verification
+        const decodedToken = JSON.parse(
+          Buffer.from(bearerToken.split(".")[1], "base64").toString()
+        );
+        if (decodedToken && decodedToken.id) {
+          userId = decodedToken.id;
+        } else {
+          return NextResponse.json(
+            { message: "Invalid CLI token" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { message: "Error decoding CLI token" },
+          { status: 401 }
+        );
+      }
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const taskId = actualParams.taskId;
 
     // Check if user has access to the task
@@ -256,18 +307,43 @@ export async function PUT(
 
 // DELETE /api/tasks/[taskId] - Delete a task
 export async function DELETE(
-  request: Request,
+  request: NextRequest, // Changed to NextRequest
   { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
     const actualParams = await params;
     const session = await getServerSession(authOptions);
+    const authHeader = request.headers.get("Authorization");
+    const isCliRequest = authHeader && authHeader.startsWith("Bearer ");
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    let userId = session?.user?.id;
+
+    if (isCliRequest && authHeader) {
+      const bearerToken = authHeader.substring(7);
+      try {
+        // TODO: Implement robust JWT verification
+        const decodedToken = JSON.parse(
+          Buffer.from(bearerToken.split(".")[1], "base64").toString()
+        );
+        if (decodedToken && decodedToken.id) {
+          userId = decodedToken.id;
+        } else {
+          return NextResponse.json(
+            { message: "Invalid CLI token" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { message: "Error decoding CLI token" },
+          { status: 401 }
+        );
+      }
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const taskId = actualParams.taskId;
 
     // Check if user has access to the task

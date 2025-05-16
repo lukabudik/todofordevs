@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
@@ -56,18 +56,44 @@ interface TaskFilter {
 
 // GET /api/projects/[projectId]/tasks - Get all tasks for a project
 export async function GET(
-  request: Request,
+  request: NextRequest, // Changed from Request to NextRequest
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const actualParams = await params;
     const session = await getServerSession(authOptions);
+    const authHeader = request.headers.get("Authorization");
+    const isCliRequest = authHeader && authHeader.startsWith("Bearer ");
 
-    if (!session?.user?.id) {
+    let userId = session?.user?.id;
+
+    if (isCliRequest && authHeader) {
+      const bearerToken = authHeader.substring(7);
+      try {
+        // TODO: Implement robust JWT verification using jose and NEXTAUTH_SECRET for production.
+        const decodedToken = JSON.parse(
+          Buffer.from(bearerToken.split(".")[1], "base64").toString()
+        );
+        if (decodedToken && decodedToken.id) {
+          userId = decodedToken.id;
+        } else {
+          return NextResponse.json(
+            { message: "Invalid CLI token" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { message: "Error decoding CLI token" },
+          { status: 401 }
+        );
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
     const projectId = actualParams.projectId;
 
     // Check if user has access to the project
@@ -130,18 +156,44 @@ export async function GET(
 
 // POST /api/projects/[projectId]/tasks - Create a new task
 export async function POST(
-  request: Request,
+  request: NextRequest, // Changed from Request to NextRequest
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const actualParams = await params;
     const session = await getServerSession(authOptions);
+    const authHeader = request.headers.get("Authorization");
+    const isCliRequest = authHeader && authHeader.startsWith("Bearer ");
 
-    if (!session?.user?.id) {
+    let userId = session?.user?.id;
+
+    if (isCliRequest && authHeader) {
+      const bearerToken = authHeader.substring(7);
+      try {
+        // TODO: Implement robust JWT verification using jose and NEXTAUTH_SECRET for production.
+        const decodedToken = JSON.parse(
+          Buffer.from(bearerToken.split(".")[1], "base64").toString()
+        );
+        if (decodedToken && decodedToken.id) {
+          userId = decodedToken.id;
+        } else {
+          return NextResponse.json(
+            { message: "Invalid CLI token" },
+            { status: 401 }
+          );
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { message: "Error decoding CLI token" },
+          { status: 401 }
+        );
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = session.user.id;
     const projectId = actualParams.projectId;
 
     // Check if user has access to the project

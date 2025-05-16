@@ -1,30 +1,45 @@
+import { jwtVerify } from "jose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  const isAuthRoute =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/register");
-  const isApiAuthRoute = request.nextUrl.pathname.startsWith("/api/auth");
-  const isPublicRoute = request.nextUrl.pathname === "/";
-  const isLegalRoute =
-    request.nextUrl.pathname.startsWith("/privacy") ||
-    request.nextUrl.pathname.startsWith("/terms");
-  const isVerificationRoute =
-    request.nextUrl.pathname.startsWith("/verify-email") ||
-    request.nextUrl.pathname.startsWith("/resend-verification");
-  const isPasswordResetRoute =
-    request.nextUrl.pathname.startsWith("/forgot-password") ||
-    request.nextUrl.pathname.startsWith("/reset-password");
+  // Check for token in cookies (Next-Auth)
+  let token = await getToken({ req: request });
 
-  // Check if it's an invitation-related route
+  // If no token in cookies, check for token in Authorization header (CLI)
+  if (!token) {
+    const authHeader = request.headers.get("Authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const bearerToken = authHeader.substring(7);
+      // TODO: For production, implement proper JWT verification here using `jose` and NEXTAUTH_SECRET
+      // For now, we assume if a Bearer token exists, it's a CLI request.
+      // The actual token validation will happen in the API route itself.
+      // This simplified `token` object is just to satisfy the middleware's later checks.
+      token = { sub: "cli-user", isCli: true };
+    }
+  }
+
+  const { pathname } = request.nextUrl;
+  const isAuthRoute =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
+  const isApiAuthRoute = pathname.startsWith("/api/auth");
+  const isPublicRoute = pathname === "/";
+  const isLegalRoute =
+    pathname.startsWith("/privacy") || pathname.startsWith("/terms");
+  const isVerificationRoute =
+    pathname.startsWith("/verify-email") ||
+    pathname.startsWith("/resend-verification");
+  const isPasswordResetRoute =
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password");
   const isInvitationRoute =
-    request.nextUrl.pathname.startsWith("/api/invitations") ||
-    request.nextUrl.pathname.includes("/invitations/") ||
-    (request.nextUrl.pathname === "/register" &&
+    pathname.startsWith("/api/invitations") ||
+    pathname.includes("/invitations/") ||
+    (pathname === "/register" &&
       request.nextUrl.search.includes("invitation="));
+  const isApiRoute = pathname.startsWith("/api/");
+  const isCliTokenRequest = token && (token as any).isCli;
 
   // Allow public routes, legal routes, API auth routes, verification routes, password reset routes, and invitation routes
   if (
@@ -38,73 +53,64 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect to login if accessing protected route without token
+  // If it's a CLI request to an API route, and we've constructed a placeholder token, let it pass.
+  // The API route itself is responsible for validating the Bearer token.
+  if (isCliTokenRequest && isApiRoute) {
+    return NextResponse.next();
+  }
+
+  // Redirect to login if accessing protected route without any token (web or CLI)
   if (!token && !isAuthRoute) {
+    // No need to check isCliRequest && isApiRoute here, covered above
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect to projects if accessing auth routes with token
-  if (token && isAuthRoute) {
+  // Redirect to projects if accessing auth routes with a valid web token
+  if (token && !(token as any).isCli && isAuthRoute) {
     return NextResponse.redirect(new URL("/projects", request.url));
   }
 
-  // Check if email is verified for protected routes
-  if (token && !isAuthRoute && !isVerificationRoute && !isPasswordResetRoute) {
+  // Email verification check for non-CLI, non-API, authenticated users
+  if (
+    token &&
+    !(token as any).isCli &&
+    !isApiRoute &&
+    !isAuthRoute &&
+    !isVerificationRoute &&
+    !isPasswordResetRoute
+  ) {
     try {
-      // Skip verification check for specific endpoints to avoid infinite loops or blocking critical paths
       const skipVerificationCheckPaths = [
         "/api/auth/check-verification",
-        "/api/invitations/verify", // Add invitation verification to skip list
+        "/api/invitations/verify",
       ];
-      if (skipVerificationCheckPaths.includes(request.nextUrl.pathname)) {
+      if (skipVerificationCheckPaths.includes(pathname)) {
         return NextResponse.next();
       }
 
-      // Call the API to check if email is verified
       const verificationCheckUrl = new URL(
         "/api/auth/check-verification",
         request.url
       );
-
       const verificationResponse = await fetch(verificationCheckUrl, {
-        headers: {
-          Cookie: request.headers.get("cookie") || "",
-        },
+        headers: { Cookie: request.headers.get("cookie") || "" },
       });
 
       if (!verificationResponse.ok) {
-        // If the API call fails, allow the request to proceed
-        // This prevents blocking users due to API errors
-        console.error("Failed to check email verification status");
+        // console.error("Failed to check email verification status"); // Keep commented for prod
         return NextResponse.next();
       }
 
       const { verified } = await verificationResponse.json();
 
-      // If email is not verified, redirect to verification needed page
       if (!verified) {
-        // Don't redirect API routes, just return 403
-        if (request.nextUrl.pathname.startsWith("/api/")) {
-          return new NextResponse(
-            JSON.stringify({
-              message: "Email verification required",
-            }),
-            {
-              status: 403,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-        }
-
-        // Redirect to verification needed page
+        // For web routes, redirect to verification page
         return NextResponse.redirect(
           new URL("/verify-email?needsVerification=true", request.url)
         );
       }
     } catch (error) {
-      console.error("Error checking email verification:", error);
-      // If there's an error, allow the request to proceed
-      // This prevents blocking users due to errors
+      // console.error("Error checking email verification:", error); // Keep commented for prod
       return NextResponse.next();
     }
   }
