@@ -1,120 +1,187 @@
-// import { jwtVerify } from "jose"; // Uncomment when implementing JWT verification
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(request: NextRequest) {
-  // Check for token in cookies (Next-Auth)
-  let token = await getToken({ req: request });
+import { prisma } from "@/lib/prisma";
 
-  // If no token in cookies, check for token in Authorization header (CLI)
-  if (!token) {
+// Define route types for better organization
+type RouteType = "public" | "auth" | "api" | "protected";
+
+// Debug mode - set to true to enable console logs for debugging
+const DEBUG = process.env.NODE_ENV !== "production";
+
+/**
+ * Log debug information if debug mode is enabled
+ */
+function debug(...args: any[]) {
+  if (DEBUG) {
+    console.log("[Middleware]", ...args);
+  }
+}
+
+/**
+ * Extract and validate authentication token from request
+ */
+async function getAuthToken(request: NextRequest) {
+  try {
+    // Try to get token from cookies (Next-Auth)
+    const token = await getToken({ req: request });
+
+    if (token) {
+      debug("Found token in cookies:", token.sub);
+      return { token, source: "cookie" };
+    }
+
+    // If no token in cookies, check for token in Authorization header (CLI)
     const authHeader = request.headers.get("Authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
-      // const bearerToken = authHeader.substring(7);
-      // TODO: For production, implement proper JWT verification here using `jose` and NEXTAUTH_SECRET
-      // For now, we assume if a Bearer token exists, it's a CLI request.
-      // The actual token validation will happen in the API route itself.
-      // This simplified `token` object is just to satisfy the middleware's later checks.
-      token = { sub: "cli-user", isCli: true };
+      debug("Found Bearer token in Authorization header");
+      // This simplified token object is just to satisfy the middleware's checks
+      // The actual token validation happens in the API route
+      return {
+        token: { sub: "cli-user", isCli: true },
+        source: "bearer",
+      };
     }
-  }
 
+    debug("No authentication token found");
+    return { token: null, source: null };
+  } catch (error) {
+    debug("Error extracting token:", error);
+    return { token: null, source: "error", error };
+  }
+}
+
+/**
+ * Determine the type of route being accessed
+ */
+function classifyRoute(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isAuthRoute =
-    pathname.startsWith("/login") || pathname.startsWith("/register");
-  const isApiAuthRoute = pathname.startsWith("/api/auth");
-  const isPublicRoute = pathname === "/" || pathname.startsWith("/cli");
-  const isLegalRoute =
-    pathname.startsWith("/privacy") || pathname.startsWith("/terms");
-  const isVerificationRoute =
+  const search = request.nextUrl.search;
+
+  // Public routes that don't require authentication
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/cli") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/verify-email") ||
-    pathname.startsWith("/resend-verification");
-  const isPasswordResetRoute =
+    pathname.startsWith("/resend-verification") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/reset-password");
-  const isInvitationRoute =
+    pathname.startsWith("/reset-password") ||
     pathname.startsWith("/api/invitations") ||
     pathname.includes("/invitations/") ||
-    (pathname === "/register" &&
-      request.nextUrl.search.includes("invitation="));
-  const isApiRoute = pathname.startsWith("/api/");
-  const isCliTokenRequest = token && (token as { isCli?: boolean }).isCli;
-
-  // Allow public routes, legal routes, API auth routes, verification routes, password reset routes, and invitation routes
-  if (
-    isPublicRoute ||
-    isLegalRoute ||
-    isApiAuthRoute ||
-    isVerificationRoute ||
-    isPasswordResetRoute ||
-    isInvitationRoute
+    (pathname === "/register" && search.includes("invitation="))
   ) {
+    return "public";
+  }
+
+  // Authentication routes
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+    return "auth";
+  }
+
+  // API routes
+  if (pathname.startsWith("/api/")) {
+    return "api";
+  }
+
+  // All other routes are protected
+  return "protected";
+}
+
+/**
+ * Check if a user's email is verified
+ * Uses direct database access instead of fetch for reliability
+ */
+async function checkEmailVerification(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerified: true },
+    });
+
+    if (!user) {
+      debug("User not found for email verification check");
+      return false;
+    }
+
+    debug("Email verification status:", !!user.emailVerified);
+    return !!user.emailVerified;
+  } catch (error) {
+    debug("Error checking email verification:", error);
+    // In case of error, we'll allow access and let the UI handle verification
+    return true;
+  }
+}
+
+/**
+ * Main middleware function
+ */
+export async function middleware(request: NextRequest) {
+  // Step 1: Get authentication token
+  const { token, source } = await getAuthToken(request);
+
+  // Step 2: Classify the route
+  const routeType = classifyRoute(request);
+  debug("Route type:", routeType, "for path:", request.nextUrl.pathname);
+
+  // Step 3: Apply access rules based on route type and authentication status
+
+  // Public routes are always accessible
+  if (routeType === "public") {
+    debug("Allowing access to public route");
     return NextResponse.next();
   }
 
-  // If it's a CLI request to an API route, and we've constructed a placeholder token, let it pass.
-  // The API route itself is responsible for validating the Bearer token.
-  if (isCliTokenRequest && isApiRoute) {
+  // CLI requests to API routes with bearer token
+  if (token && (token as any).isCli && routeType === "api") {
+    debug("Allowing CLI access to API route");
     return NextResponse.next();
   }
 
-  // Redirect to login if accessing protected route without any token (web or CLI)
-  if (!token && !isAuthRoute) {
-    // No need to check isCliRequest && isApiRoute here, covered above
+  // Redirect to login if accessing protected route without token
+  if (!token && routeType !== "auth") {
+    debug("No token, redirecting to login");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Redirect to projects if accessing auth routes with a valid web token
-  if (token && !(token as { isCli?: boolean }).isCli && isAuthRoute) {
+  if (token && !(token as any).isCli && routeType === "auth") {
+    debug("Authenticated user accessing auth route, redirecting to projects");
     return NextResponse.redirect(new URL("/projects", request.url));
   }
 
-  // Email verification check for non-CLI, non-API, authenticated users
-  if (
-    token &&
-    !(token as { isCli?: boolean }).isCli &&
-    !isApiRoute &&
-    !isAuthRoute &&
-    !isVerificationRoute &&
-    !isPasswordResetRoute
-  ) {
-    try {
-      const skipVerificationCheckPaths = [
-        "/api/auth/check-verification",
-        "/api/invitations/verify",
-      ];
-      if (skipVerificationCheckPaths.includes(pathname)) {
-        return NextResponse.next();
-      }
+  // For protected routes with web authentication, check email verification
+  if (token && !(token as any).isCli && routeType === "protected") {
+    debug("Checking email verification for protected route");
 
-      const verificationCheckUrl = new URL(
-        "/api/auth/check-verification",
-        request.url
-      );
-      const verificationResponse = await fetch(verificationCheckUrl, {
-        headers: { Cookie: request.headers.get("cookie") || "" },
-      });
+    // Skip verification for certain paths
+    const { pathname } = request.nextUrl;
+    const skipVerificationCheckPaths = [
+      "/api/auth/check-verification",
+      "/api/invitations/verify",
+    ];
 
-      if (!verificationResponse.ok) {
-        // console.error("Failed to check email verification status"); // Keep commented for prod
-        return NextResponse.next();
-      }
-
-      const { verified } = await verificationResponse.json();
-
-      if (!verified) {
-        // For web routes, redirect to verification page
-        return NextResponse.redirect(
-          new URL("/verify-email?needsVerification=true", request.url)
-        );
-      }
-    } catch (_error) {
-      // console.error("Error checking email verification:", error); // Keep commented for prod
+    if (skipVerificationCheckPaths.includes(pathname)) {
+      debug("Skipping verification check for special path");
       return NextResponse.next();
+    }
+
+    // Check email verification directly using the database
+    const isVerified = await checkEmailVerification(token.sub as string);
+
+    if (!isVerified) {
+      debug("Email not verified, redirecting to verification page");
+      return NextResponse.redirect(
+        new URL("/verify-email?needsVerification=true", request.url)
+      );
     }
   }
 
+  // Allow access for all other cases
+  debug("Access allowed");
   return NextResponse.next();
 }
 
